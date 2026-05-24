@@ -46,6 +46,15 @@ color: yellow
 - 不要使用 AI 爛俗模板（紫色漸層、白卡片、千篇一律的 Hero Banner）
 - 讓生成物體現角色的獨特專業視角
 
+**⚠️ 視覺類輸出（HTML / 網頁 / UI）特別注意**：
+評估器會用 headless Chrome 把你的 HTML render 成 desktop（1440×900）和 mobile（390×844）兩張截圖，
+然後**直接看圖評分**，不是讀你的 code。所以：
+- 視覺質感是第一優先，不要把心力花在 code 層的奇技淫巧上
+- 一定要做 RWD，mobile viewport 也會被截圖
+- 字體、配色、留白、Hero 衝擊力 — 這些「看得到」的東西最重要
+- 自帶 `<style>` 內嵌完整 CSS，**不要依賴外部 CDN 字體之外的任何網路資源**（headless 環境網路可能受限）
+- 圖片用 placeholder（純 CSS / SVG / unsplash 連結都行），但要確認 render 出來不會破版
+
 ### 5. 儲存輸出
 
 確認當前是第 N 輪，建立目錄 `.harness/output/iteration_N/`

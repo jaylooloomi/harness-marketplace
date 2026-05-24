@@ -23,14 +23,43 @@ color: red
 記住每個維度的 `fail_example`，這些是要主動檢查的陷阱。
 
 ### 3. 讀取本輪輸出
-讀取最新一輪的輸出（`.harness/output/iteration_N/`）。
 
-若輸出是前端頁面（HTML）：
+定位本輪資料夾 `.harness/output/iteration_N/`，根據輸出類型用不同方式檢視：
+
+#### 3a. 視覺類輸出（HTML / 網頁 / UI）— 必須看實際畫面
+
+**絕對不可以只讀 HTML 原始碼來評分視覺設計。**
+原始碼看不出色彩搭配、留白比例、字體質感、Hero 視覺衝擊感。
+
+執行 Bash 截圖：
+
 ```bash
-# 用 Bash 確認頁面可以正常運行
-cat .harness/output/iteration_N/index.html | head -50
-# 檢查是否有明顯的結構問題
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
+  .harness/output/iteration_N/index.html \
+  .harness/output/iteration_N/screenshots
 ```
+
+這會產生：
+- `.harness/output/iteration_N/screenshots/desktop.png`（1440×900）
+- `.harness/output/iteration_N/screenshots/mobile.png`（390×844）
+
+接著用 Read 工具**直接讀取兩張 PNG**（Claude 是多模態，可以看圖）：
+- Read `.harness/output/iteration_N/screenshots/desktop.png`
+- Read `.harness/output/iteration_N/screenshots/mobile.png`
+
+**以人眼看圖的方式評分**，重點檢查：
+- 第一眼印象（醜 / 普通 / 有質感 / 有驚喜）
+- 色彩搭配是否協調、有品牌個性
+- 字體層級、行距、字距是否舒服
+- Hero 區是否有視覺衝擊力
+- 留白與資訊密度的平衡
+- RWD 在手機 viewport 是否崩版
+
+若截圖腳本失敗（沒有 Chrome/Edge），退而求其次 `cat index.html | head -100` 並在評分中**註明「無法視覺評估」**，該維度的視覺類項目給予中性分數（10-12 分）。
+
+#### 3b. 純文字類輸出（文案 / 文章 / 方案）
+
+直接 Read 對應檔案（`content.md` / `plan.md` / `main.*`），全文閱讀後評分。
 
 ### 4. 嚴格評分
 

@@ -133,12 +133,16 @@
     ├── iteration_1/     ← 第一輪輸出
     │   ├── index.html   ← 實際輸出物（依任務類型不同）
     │   ├── generator_notes.md  ← 生成器的設計說明
-    │   └── score.json   ← 評分結果
+    │   ├── screenshots/        ← 視覺類任務的截圖（desktop / mobile）
+    │   └── score.json   ← 評分結果（視覺類任務以截圖為主要評分依據）
     ├── iteration_2/
     └── ...
 ```
 
 每輪都會保留，你可以回頭查看任何一個版本。
+
+> 💡 **視覺類任務（網站、UI）會用 headless Chrome/Edge 自動截圖兩個 viewport**，
+> 評估器以人眼看圖的方式評分，而非讀 HTML 原始碼。需要本機安裝 Chrome 或 Edge。
 
 ---
 

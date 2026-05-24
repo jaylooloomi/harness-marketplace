@@ -26,6 +26,12 @@ description: >
 ├── dimensions.json     ← 評估維度
 └── output/
     ├── iteration_1/    ← 每輪輸出
+    │   ├── index.html (或 content.md / plan.md)
+    │   ├── generator_notes.md
+    │   ├── screenshots/        ← 視覺類任務的截圖（評估器看圖用）
+    │   │   ├── desktop.png    (1440×900)
+    │   │   └── mobile.png     (390×844)
+    │   └── score.json
     ├── iteration_2/
     └── ...
 ```
@@ -72,7 +78,7 @@ description: >
 呼叫 @harness-evaluator agent：
 - 讀取 `.harness/roles.json` 的評估器角色設定，以該角色身份評估
 - 讀取 `.harness/dimensions.json` 的 4 個維度，嚴格打分
-- 若輸出是前端頁面，用 Bash 實際開啟確認效果
+- **若輸出是 HTML 頁面，必須先用 `scripts/screenshot.sh` 截圖，再用 Read 工具看圖評分**（絕對不要只讀 code）
 - 結果寫入 `.harness/output/iteration_N/score.json`
 
 ---
