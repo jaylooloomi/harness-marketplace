@@ -2,7 +2,7 @@
   "name": "harness-marketplace",
   "owner": {
     "name": "Arthur / 宏思科技",
-    "email": "your@email.com"
+    "email": "jaylooloomi@gmail.com"
   },
   "description": "基於 Anthropic Harness 架構 + agency-agents-zh，輸入任務自動選角→規劃→生成→評估→迭代，輸出多個高品質版本",
   "plugins": [
