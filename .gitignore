@@ -1,0 +1,4 @@
+# 本地測試用
+.harness/
+node_modules/
+*.log
