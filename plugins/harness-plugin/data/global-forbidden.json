@@ -1,0 +1,147 @@
+{
+  "version": "1.0",
+  "description": "AI 生成設計時最常落入的『預設套路』。Generator 每輪必須明確違反至少 1 條並 documented。使用者可在 .harness/context.json 用 additional_forbidden / disabled_forbidden 自訂。",
+  "patterns": [
+    {
+      "id": "layout-hero-grid-footer",
+      "category": "structure",
+      "rule": "禁止『Hero + 3-column grid + footer』三段式模板",
+      "why": "這是 SaaS / 模板網站的 default 構圖，毫無形式辨識度",
+      "violation_examples": [
+        "改用 CSS 3D 沉浸空間",
+        "改用 scroll-driven 線性敘事",
+        "改用 split-screen 對比版型",
+        "改用單頁雜誌跨頁式"
+      ]
+    },
+    {
+      "id": "layout-sticky-nav-blur",
+      "category": "structure",
+      "rule": "禁止『sticky nav + backdrop-filter blur』組合",
+      "why": "2020-2025 的 SaaS 預設導覽列做法，全網都長這樣",
+      "violation_examples": [
+        "改成側邊固定導覽",
+        "改成 nav 隨 scroll 消失/重現",
+        "完全拿掉 nav，靠 anchor 跳轉"
+      ]
+    },
+    {
+      "id": "typography-default-sans",
+      "category": "typography",
+      "rule": "禁止『Inter / Roboto / system-ui / Helvetica』作主導字體",
+      "why": "這四個是 AI 生成時的安全牌，立刻被看出是 AI/template",
+      "violation_examples": [
+        "用襯線體（Garamond / Noto Serif / Playfair）主導",
+        "用 monospace（JetBrains Mono / IBM Plex Mono）作 brand 字",
+        "中文用思源宋體配古典 serif 英文"
+      ]
+    },
+    {
+      "id": "typography-no-variation",
+      "category": "typography",
+      "rule": "禁止全頁只用 1 個字族無變化",
+      "why": "缺乏字體層級對比就是平淡",
+      "violation_examples": [
+        "標題襯線 + 內文無襯線的混搭",
+        "數字用 monospace 與文字用 serif 對比",
+        "強調字用 italic 或 condensed 變體"
+      ]
+    },
+    {
+      "id": "color-saas-defaults",
+      "category": "color",
+      "rule": "禁止『紫色/藍色漸層』作主色（Tailwind / SaaS 預設）",
+      "why": "Stripe / Linear / 多數 SaaS 的預設色相，毫無品牌個性",
+      "violation_examples": [
+        "用大地色系（米黃 / 棕 / 朱紅 / 鎏金）",
+        "用單色（單色階加灰）",
+        "用品牌專屬色（如咖啡棕、墨綠）"
+      ]
+    },
+    {
+      "id": "color-grayscale-accent",
+      "category": "color",
+      "rule": "禁止『全頁灰階 + 1 個強調色』的 SaaS 配色",
+      "why": "Linear / Notion / Stripe 都是這個 pattern",
+      "violation_examples": [
+        "用 2-3 個對比強烈的色彩",
+        "用單一暖色系做整頁",
+        "用暗色為主，亮色為點綴"
+      ]
+    },
+    {
+      "id": "interaction-card-hover",
+      "category": "interaction",
+      "rule": "禁止『卡片 hover: translateY(-4px) + box-shadow』組合",
+      "why": "Material Design 以來的標準卡片互動，全網一樣",
+      "violation_examples": [
+        "改用 scale + 顏色變化",
+        "改用 border-color 變化",
+        "改用內部元素位移而非整卡浮起",
+        "完全不做 hover effect"
+      ]
+    },
+    {
+      "id": "interaction-static-page",
+      "category": "interaction",
+      "rule": "禁止整頁完全靜態無任何 scroll-driven / parallax / 互動效果",
+      "why": "網頁獨有的能力沒被使用，等於浪費 medium",
+      "violation_examples": [
+        "scroll-driven 元素進場",
+        "mouse parallax",
+        "CSS 3D + 視角變化",
+        "scroll-snap 章節切換"
+      ]
+    },
+    {
+      "id": "copy-generic-cta",
+      "category": "copy",
+      "rule": "禁止中性 CTA 文案：「了解更多」/「立即開始」/「Get Started」/「Learn More」",
+      "why": "AI 生成文案的安全牌，沒有品牌口吻",
+      "violation_examples": [
+        "用具體動作：「看今日豆單」/「Enter the Gallery」",
+        "用品牌口吻：「來坐坐」/「Step closer」",
+        "用問句：「準備好了嗎？」"
+      ]
+    },
+    {
+      "id": "copy-saas-value-prop",
+      "category": "copy",
+      "rule": "禁止 SaaS 標準 value prop：「節省時間」/「提升效率」/「Trusted by 1000+」",
+      "why": "AI 生成的安全文案套路",
+      "violation_examples": [
+        "用具體故事/場景代替抽象 benefit",
+        "用反向陳述（『我們不做 XXX』）",
+        "用情緒性而非功能性陳述"
+      ]
+    },
+    {
+      "id": "structure-saas-funnel",
+      "category": "structure",
+      "rule": "禁止『Features grid → Testimonials → Pricing → CTA』SaaS landing 漏斗結構",
+      "why": "Y Combinator 教科書版型，所有 SaaS 都長這樣",
+      "violation_examples": [
+        "把 testimonials 嵌進 hero 區",
+        "完全不放 pricing 在首頁",
+        "從 problem 開場而非 feature"
+      ]
+    },
+    {
+      "id": "mobile-hamburger-drawer",
+      "category": "mobile",
+      "rule": "禁止標準 hamburger menu + 側拉 drawer mobile nav",
+      "why": "Material / iOS 標配，全網一致",
+      "violation_examples": [
+        "Mobile 底部 tab bar",
+        "全螢幕覆蓋式 nav menu",
+        "完全隱藏 nav，靠 scroll 探索"
+      ]
+    }
+  ],
+  "rules": {
+    "required_violations_per_iteration": 1,
+    "violation_must_be_documented_in_generator_notes": true,
+    "evaluator_must_verify_violations": true,
+    "unverified_violations_deduct_points": true
+  }
+}

@@ -4,6 +4,68 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-05-25
+
+### Why this release
+End-to-end testing (Taiwan Palace Museum, 2026-05-25) surfaced a fundamental
+limitation: harness was a **polishing system, not a creative system**. It
+could iterate within a given frame but never found new frames. The 3D
+gallery breakthrough only happened because a human (Arthur) injected a
+reference image. Without that, iter_1 → iter_n would polish forever.
+
+v1.1.0 adds three structural mechanisms to systematically push past
+conventional thinking, drawn from the lessons of that test.
+
+### Added
+- **Step 0: References + Forbidden Patterns** (new in SKILL.md). Before
+  selector runs, the harness asks the user for 1-3 reference URLs/images
+  representing the "ceiling" for the task. Stored in `.harness/context.json`
+  alongside the loaded anti-pattern list.
+- **`data/global-forbidden.json`** — 12 anti-patterns AI generators
+  routinely fall into (default sans-serif fonts, purple/blue gradients,
+  hero+grid+footer structure, generic CTA copy, sticky-nav-blur, etc.).
+  Generator **must violate at least 1 per iteration** and document it.
+  User can override via `additional_forbidden` / `disabled_forbidden`
+  in `.harness/context.json`.
+- **`data/frame-shift-prompts.json`** — 8 lateral-thinking framings
+  (physical exhibition, photo book, video game level, magazine spread,
+  handwritten letter, documentary film, subway map, tarot card spread).
+  Injected on forced-pivot rounds.
+- **Plateau detection in SKILL.md Step 5b**: if iter ≥ 3 and the last
+  3 scores vary by < 3 points, the harness detects a polish trap.
+- **Forced pivot + frame-shift injection in Step 5c-5d**: triggered by
+  plateau OR every 3rd iteration. A frame-shift prompt is selected
+  (excluding already-used ones) and passed to the next generator round.
+
+### Changed
+- **`harness-planner.md`** now requires at least one dimension to directly
+  benchmark against `context.json.references`. The `generator_instruction`
+  must include the forbidden-pattern requirement.
+- **`harness-generator.md`** now requires reading `context.json`, picking
+  ≥1 forbidden pattern to violate per iteration, and documenting violations
+  in `generator_notes.md`. On pivot rounds, generator must first think in
+  the active frame-shift frame and translate back to web.
+- **`harness-evaluator.md`** now uses WebFetch to load reference URLs,
+  must benchmark concretely against references (no "feels close" hand-waving),
+  and verifies the generator's claimed forbidden violations — empty or
+  hand-wavy violations deduct 5-10 points.
+
+### Why these specific mechanisms (and not others)
+Considered but deferred to future versions:
+- Multi-evaluator personas with conflicting values (would require multi-agent
+  architecture changes)
+- N-parallel generation per round (would require new orchestration layer)
+- Self-learning forbidden list (system observes AI patterns and grows the
+  list) — defer to v1.2
+
+The three included mechanisms were chosen because they (a) cover the three
+distinct failure modes observed in testing (no taste anchor, AI default
+patterns, polish trap), (b) plug into the existing skill+agent architecture
+without restructuring, and (c) keep the harness user-overridable rather
+than dogmatic.
+
+---
+
 ## [1.0.3] — 2026-05-25
 
 ### Changed
@@ -102,6 +164,7 @@ least one polish round for non-trivial work.
 - Iteration loop runs up to 10 rounds until score ≥ 80, otherwise
   emits all versions.
 
+[1.1.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.1.0
 [1.0.3]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.3
 [1.0.2]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.2
 [1.0.1]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.1

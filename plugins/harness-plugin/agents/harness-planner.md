@@ -12,9 +12,13 @@ color: green
 
 ## 執行步驟
 
-### 1. 讀取角色設定
+### 1. 讀取角色設定 + 對標 context（v1.1）
 讀取 `.harness/roles.json`，找到 planner 的角色路徑。
 讀取該角色的 .md 檔案，**以該角色的專業視角和思維方式來分析任務**。
+
+**v1.1 新增**：讀取 `.harness/context.json` — 注意以下兩個欄位將影響 dimensions 設計：
+- `references` — 使用者提供的『天花板等級』參考（URL / 描述 / 圖片）
+- `forbidden_patterns` — 禁區清單（generator 必須違反至少 1 條）
 
 ### 2. 分析任務性質
 判斷任務類型：
@@ -31,6 +35,10 @@ color: green
 - AI 天生弱的維度（原創性、個性、創意突破）→ 權重 **25-35%**
 - 本任務最核心的維度 → 權重 **最高（30-35%）**
 - 4 個維度權重**加總必須 = 100%**
+- **v1.1 新增**：至少 1 個維度必須**直接對標 context.json.references**。
+  例如：`name: "對標 [reference 1] 的程度"`、`weight: 25-35%`、
+  `good/bad/fail_example` 都以 reference 為基準描述（『接近 reference 的 X 特質』vs『離 reference 還很遠』）。
+  若 references_source = "system_fallback"，仍要寫此維度，描述改為『對標業界 top-tier 同類作品』。
 
 **每個維度必須包含**：
 - `name`：維度名稱（3-6 個字）
@@ -60,7 +68,7 @@ color: green
     },
     ...（共 4 個）
   ],
-  "generator_instruction": "給生成器的特別指示，說明本任務最需要注意的點"
+  "generator_instruction": "給生成器的特別指示，必須包含三段：(1) 本任務最需要注意的點；(2) 對標方向（呼應 references）；(3) 提醒『禁區清單見 context.json，本輪必須違反至少 1 條 forbidden pattern 並 documented』"
 }
 ```
 

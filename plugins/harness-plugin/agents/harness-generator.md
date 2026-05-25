@@ -16,11 +16,16 @@ color: yellow
 讀取 `.harness/roles.json`，找到 generator 的角色路徑。
 讀取該角色的 .md 檔案，**完全以該角色的專業身份、風格和方法論來生成內容**。
 
-### 2. 讀取評估維度
+### 2. 讀取評估維度 + 對標 context（v1.1）
 讀取 `.harness/dimensions.json`：
 - 記住 4 個維度和它們的權重
 - 特別注意 `fail_example`，**避免踩到這些陷阱**
 - 閱讀 `generator_instruction`，這是本任務的特別注意事項
+
+**v1.1 強制**：讀取 `.harness/context.json`：
+- `references` — 對標的『天花板』參考。**生成前必須先想像對標的視覺/結構/質感，朝那個方向走**。
+- `forbidden_patterns` — 禁區清單。**本輪必須明確違反至少 1 條**（強制要求，evaluator 會查核）。
+- `frame_shift_active`（若存在）— 強制 pivot 觸發後的框架轉換 prompt。**必須先以該 frame 思考完成設計，再翻譯回網頁**。例如 frame = 「實體展覽」→ 先想動線、空間、引導，再把這些翻譯成 scroll / section / 互動。
 
 ### 3. 判斷是第幾輪
 
@@ -74,12 +79,22 @@ color: yellow
 
 ## 本輪策略
 [第一輪：初始生成 / refine：精修方向 / pivot：推翻重來]
+[若 frame_shift_active：標註用了哪個 frame 並說明如何運用]
+
+## 對標參考
+[簡述本輪如何朝 context.json.references 對標]
 
 ## 關鍵設計決策
 [說明本輪做了哪些刻意的創意選擇]
 
 ## 針對上輪 feedback 的改善
 [第一輪留空；之後輪次說明每個 feedback 如何處理]
+
+## Forbidden patterns violated this iteration (v1.1 強制)
+- [pattern.id]: [本版本如何明確違反這條 — 用具體技術細節說明，不可敷衍]
+- [pattern.id]: [可選，違反越多越好]
 ```
+
+**警告**：若 `Forbidden patterns violated` 段落為空、或內容是敷衍（例如「我用了藍色不是紫色」這種程度），evaluator 會扣 5-10 分。要真的違反，不是字面遊戲。
 
 最後在主對話中簡短回報：「Iteration N 生成完畢，交由評估器評分」。

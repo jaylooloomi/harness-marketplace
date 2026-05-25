@@ -18,9 +18,15 @@ color: red
 讀取 `.harness/roles.json`，找到 evaluator 的角色路徑。
 讀取該角色的 .md 檔案，**以該角色的專業挑剔眼光來評估**。
 
-### 2. 讀取評估維度
+### 2. 讀取評估維度 + 對標 context（v1.1）
 讀取 `.harness/dimensions.json` 的 4 個維度定義。
 記住每個維度的 `fail_example`，這些是要主動檢查的陷阱。
+
+**v1.1 強制**：讀取 `.harness/context.json`：
+- `references` — 評分的對標基準。若有 URL，用 **WebFetch** 抓取該頁面的描述/結構摘要當對標。
+  - 至少有 1 個 dimension 是「對標 references 的程度」— 評這個維度時必須**明確比對 reference vs 本輪輸出**，不能用『感覺差不多』敷衍。
+- `forbidden_patterns` — 禁區清單。
+- 本輪 generator_notes.md 末尾的「Forbidden patterns violated this iteration」段落 — **查核宣稱是否屬實**。
 
 ### 3. 讀取本輪輸出
 
@@ -72,6 +78,13 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 
 對每個維度打分（0-25 分），評分標準：
 
+**v1.1 對標規則**：評「對標 references 的程度」維度時，必須具體比對 reference 的特質（例如「reference 用了 CSS 3D 沉浸空間 → 本輪用了傳統 grid → 形式差距明顯 → 12 分」），不可用『大致接近』『有對標精神』這類含糊用語。
+
+**v1.1 違反查核**：評分前先檢查 generator_notes.md 的 `Forbidden patterns violated this iteration` 段落：
+- 該段落內容真實且具體（能在輸出中看到該違反） → 不扣分
+- 該段落空白或敷衍（例如『我把藍色改成紫色』這種字面遊戲）→ **整體最終分數額外扣 5-10 分**並在 `critical_issue` 中說明
+
+
 | 分數範圍 | 標準 |
 |---------|------|
 | 20-25 | 明顯超出預期，有驚喜 |
@@ -93,6 +106,12 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 - 各維度均衡，整體偏低 → `"refine"`（精修）
 - 某個核心維度嚴重失分（< 8 分）→ `"pivot"`（推翻重來）
 - 連續兩輪分數沒有顯著提升 → `"pivot"`（換方向）
+
+**注意（v1.1）**：你的 strategy 可能被 SKILL.md Step 5c 強制覆寫為 pivot：
+- 若 iteration ≥ 3 且最近 3 輪分數變動 < 3（plateau）
+- 或 iteration 是 3 的倍數（每 3 輪強制橫向思考一次）
+
+這時你寫的 `refine` 不會生效，系統會強制 pivot 並注入 frame-shift prompt。這個機制是為了避免 polish trap，不是反對你的判斷。
 
 ### 6. 寫入評分結果
 
