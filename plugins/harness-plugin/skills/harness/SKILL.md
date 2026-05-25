@@ -91,8 +91,8 @@ description: >
 讀取 `score.json` 的 total 分數：
 
 ```
-total < 80  → 回到 Step 3，帶著 score.json 繼續迭代
-total >= 80 → 進入 Step 6
+total < 90  → 回到 Step 3，帶著 score.json 繼續迭代
+total >= 90 → 進入 Step 6
 ```
 
 **最多迭代 10 輪**，避免無限迴圈。

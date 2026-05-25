@@ -122,4 +122,4 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 最後在主對話中回報評分摘要：
 - 顯示總分和各維度分數
 - 說明策略決定（refine 或 pivot）
-- 若總分 >= 80，恭喜並告知即將輸出最終結果
+- 若總分 >= 90，恭喜並告知即將輸出最終結果

@@ -4,6 +4,24 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-05-25
+
+### Changed
+- **Iteration threshold raised from 80 → 90.** The harness now keeps iterating
+  generator+evaluator until the weighted total reaches 90, instead of 80.
+  Stricter quality bar produces more polished output at the cost of more rounds
+  (still capped at 10 iterations).
+- Updated SKILL.md Step 5, harness-evaluator.md success message, and
+  README.md flow diagram + FAQ to reflect the new threshold.
+
+### Why
+Real-world testing (Taiwan Palace Museum site, 2026-05-25) showed that
+iteration 1 could already reach 83 with a strong planner + role selection —
+threshold 80 was no longer a meaningful filter. Raising to 90 forces at
+least one polish round for non-trivial work.
+
+---
+
 ## [1.0.2] — 2026-05-25
 
 ### Added
@@ -84,6 +102,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Iteration loop runs up to 10 rounds until score ≥ 80, otherwise
   emits all versions.
 
+[1.0.3]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.3
 [1.0.2]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.2
 [1.0.1]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.0

@@ -1,7 +1,7 @@
 {
   "name": "harness-plugin",
   "description": "自動化多角色迭代生成系統，基於 Anthropic Harness 架構 + agency-agents-zh 動態選角",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "hooks": {
     "PostInstall": [
       {
