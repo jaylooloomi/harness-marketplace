@@ -3,6 +3,10 @@
 > 基於 Anthropic Harness 架構 + agency-agents-zh 動態選角的自動迭代生成系統
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Latest Release](https://img.shields.io/github/v/release/jaylooloomi/harness-marketplace?label=release&color=blue)](https://github.com/jaylooloomi/harness-marketplace/releases/latest)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.139%2B-orange)](https://docs.claude.com/en/docs/claude-code)
+[![Node.js](https://img.shields.io/badge/Node.js-optional%2C%20enables%20full--page%20screenshots-green)](https://nodejs.org/)
+[![Roles](https://img.shields.io/badge/roles-242%20from%20agency--agents--zh-purple)](https://github.com/jnMetaCode/agency-agents-zh)
 
 ---
 
