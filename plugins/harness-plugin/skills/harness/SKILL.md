@@ -29,8 +29,11 @@ description: >
     │   ├── index.html (或 content.md / plan.md)
     │   ├── generator_notes.md
     │   ├── screenshots/        ← 視覺類任務的截圖（評估器看圖用）
-    │   │   ├── desktop.png    (1440×900)
-    │   │   └── mobile.png     (390×844)
+    │   │   ├── desktop.png        (1440×900 hero)
+    │   │   ├── desktop_full.png   (完整桌面頁面, v1.0.2+)
+    │   │   ├── desktop_<id>.png   (每個 section 一張, v1.0.2+)
+    │   │   ├── mobile.png         (390×844 hero)
+    │   │   └── mobile_full.png    (完整 mobile 頁面, v1.0.2+)
     │   └── score.json
     ├── iteration_2/
     └── ...

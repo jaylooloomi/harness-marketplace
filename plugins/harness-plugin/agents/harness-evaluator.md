@@ -39,13 +39,20 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
   .harness/output/iteration_N/screenshots
 ```
 
-這會產生：
-- `.harness/output/iteration_N/screenshots/desktop.png`（1440×900）
-- `.harness/output/iteration_N/screenshots/mobile.png`（390×844）
+**有 node + puppeteer-core 時（v1.0.2+，安裝時自動裝好）會產生**：
+- `desktop.png` — 1440×900 viewport（hero 首屏）
+- `desktop_full.png` — **完整桌面頁面**（從 hero 到 footer 全部）
+- `desktop_<section_id>.png` — 每個 `<section id="...">` 各一張，自動滾動到該段
+- `mobile.png` — 390×844 mobile viewport
+- `mobile_full.png` — **完整 mobile 頁面**
 
-接著用 Read 工具**直接讀取兩張 PNG**（Claude 是多模態，可以看圖）：
-- Read `.harness/output/iteration_N/screenshots/desktop.png`
-- Read `.harness/output/iteration_N/screenshots/mobile.png`
+**只有 chrome CLI 時（fallback）只會產生**：
+- `desktop.png` + `mobile.png`（viewport-only，無法看完整頁）
+
+用 Read 工具**直接讀取所有 PNG**（Claude 是多模態，可以看圖）。**至少要讀**：
+1. `desktop_full.png`（或退而 `desktop.png`）— 整體品牌語言一致性
+2. `mobile.png`（或 `mobile_full.png`）— RWD 是否破版
+3. 各個 `desktop_<section>.png`（如果有）— 每段獨立評分
 
 **以人眼看圖的方式評分**，重點檢查：
 - 第一眼印象（醜 / 普通 / 有質感 / 有驚喜）

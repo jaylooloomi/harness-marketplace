@@ -141,8 +141,12 @@
 
 每輪都會保留，你可以回頭查看任何一個版本。
 
-> 💡 **視覺類任務（網站、UI）會用 headless Chrome/Edge 自動截圖兩個 viewport**，
-> 評估器以人眼看圖的方式評分，而非讀 HTML 原始碼。需要本機安裝 Chrome 或 Edge。
+> 💡 **視覺類任務（網站、UI）會用 headless Chrome/Edge 自動截圖**：
+> - 桌面 + mobile viewport（hero 首屏）
+> - **完整頁面 + 每個 section 獨立截圖**（v1.0.2+，需 Node.js）
+>
+> 評估器以人眼看圖的方式評分，而非讀 HTML 原始碼。
+> 需要本機安裝 **Chrome 或 Edge**；若有 **Node.js**，安裝時會自動裝 puppeteer-core 啟用完整頁截圖。
 
 ---
 
