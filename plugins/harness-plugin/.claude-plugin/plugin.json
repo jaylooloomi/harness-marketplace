@@ -1,14 +1,14 @@
 {
   "name": "harness-plugin",
   "description": "自動化多角色迭代生成系統，基於 Anthropic Harness 架構 + agency-agents-zh 動態選角",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "hooks": {
     "PostInstall": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/install-agents.sh"
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/setup.js\" install"
           }
         ]
       }

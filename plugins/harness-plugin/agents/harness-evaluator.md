@@ -22,15 +22,21 @@ color: red
 讀取 `.harness/dimensions.json` 的 4 個維度定義。
 記住每個維度的 `fail_example`，這些是要主動檢查的陷阱。
 
-**v1.1 強制**：讀取 `.harness/context.json`：
-- `references` — 評分的對標基準。若有 URL，用 **WebFetch** 抓取該頁面的描述/結構摘要當對標。
+**v1.2 強制**：讀取 `.harness/context.json`：
+- `references` — 評分的對標基準。
+  - `type: "url"` → 用 **WebFetch** 抓取該頁面的描述/結構摘要當對標。
+  - `type: "image"` → 用其 `value`（主流程已把圖轉成文字描述）當對標，**不要**期待自己能看到原圖。
   - 至少有 1 個 dimension 是「對標 references 的程度」— 評這個維度時必須**明確比對 reference vs 本輪輸出**，不能用『感覺差不多』敷衍。
-- `forbidden_patterns` — 禁區清單。
-- 本輪 generator_notes.md 末尾的「Forbidden patterns violated this iteration」段落 — **查核宣稱是否屬實**。
+- `forbidden_patterns` + `dimensions.task_tags` — 只有 `applies_to` 與 task_tags 有交集的禁區對本任務生效。
+- generator_notes.md 的 **`Pre-registered violation`** 與 **`Forbidden patterns violated`** 兩段 — **比對宣告 vs 成品是否相符**（見 Step 4）。
 
 ### 3. 讀取本輪輸出
 
 定位本輪資料夾 `.harness/output/iteration_N/`，根據輸出類型用不同方式檢視：
+
+**best-of-N（若有 `candidate_1/ … candidate_N/` 子目錄，v1.2）**：對**每個 candidate** 各跑一次下面的檢視+評分，把分數寫到該 `candidate_M/score.json`；選總分最高者為勝出，把它的代表分數寫成 `iteration_N/score.json` 並加一個欄位 `"winning_candidate": M`。沒有 candidate 子目錄就照常評單一輸出。
+
+> ⚠️ **best-of-N 路徑替換**：此時 HTML 在 `candidate_M/index.html`、`iteration_N/index.html` 還不存在。下方 3a 的截圖指令與所有讀圖/讀檔路徑，都要把 `iteration_N/` 換成 `iteration_N/candidate_M/`（例如 `screenshot.sh .../candidate_M/index.html .../candidate_M/screenshots`），否則會截不到圖而誤判為「無法視覺評估」。
 
 #### 3a. 視覺類輸出（HTML / 網頁 / UI）— 必須看實際畫面
 
@@ -49,16 +55,18 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 - `desktop.png` — 1440×900 viewport（hero 首屏）
 - `desktop_full.png` — **完整桌面頁面**（從 hero 到 footer 全部）
 - `desktop_<section_id>.png` — 每個 `<section id="...">` 各一張，自動滾動到該段
+- `desktop_region_1.png … desktop_region_N.png` — **若版面幾乎沒有 `<section id>`**（常見於刻意打破 nav 的設計）改產生的視窗分區圖；按需讀法同 `desktop_<section>.png`
 - `mobile.png` — 390×844 mobile viewport
 - `mobile_full.png` — **完整 mobile 頁面**
 
 **只有 chrome CLI 時（fallback）只會產生**：
 - `desktop.png` + `mobile.png`（viewport-only，無法看完整頁）
 
-用 Read 工具**直接讀取所有 PNG**（Claude 是多模態，可以看圖）。**至少要讀**：
+用 Read 工具直接讀取 PNG（Claude 是多模態，可以看圖）。**預設只讀這兩張**（v1.2：控制多模態成本）：
 1. `desktop_full.png`（或退而 `desktop.png`）— 整體品牌語言一致性
 2. `mobile.png`（或 `mobile_full.png`）— RWD 是否破版
-3. 各個 `desktop_<section>.png`（如果有）— 每段獨立評分
+
+**只有當你從上面兩張懷疑某個 section 有問題時**（例如某段配色突兀、某段排版崩），才**額外**讀那一張 `desktop_<section>.png` 來確認。不要一律把每張 section 圖都讀進來。
 
 **以人眼看圖的方式評分**，重點檢查：
 - 第一眼印象（醜 / 普通 / 有質感 / 有驚喜）
@@ -68,7 +76,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 - 留白與資訊密度的平衡
 - RWD 在手機 viewport 是否崩版
 
-若截圖腳本失敗（沒有 Chrome/Edge），退而求其次 `cat index.html | head -100` 並在評分中**註明「無法視覺評估」**，該維度的視覺類項目給予中性分數（10-12 分）。
+若截圖腳本失敗（沒有 Chrome/Edge），退而求其次用 **Read 工具**開該輪的 `index.html`（`.harness/output/iteration_N/index.html`，best-of-N 則 `candidate_M/index.html`）前 ~100 行（平台中性，不用 `cat`/`head`），並在評分中**註明「無法視覺評估」**，該維度的視覺類項目給予中性分數（10-12 分）。
 
 #### 3b. 純文字類輸出（文案 / 文章 / 方案）
 
@@ -80,9 +88,11 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 
 **v1.1 對標規則**：評「對標 references 的程度」維度時，必須具體比對 reference 的特質（例如「reference 用了 CSS 3D 沉浸空間 → 本輪用了傳統 grid → 形式差距明顯 → 12 分」），不可用『大致接近』『有對標精神』這類含糊用語。
 
-**v1.1 違反查核**：評分前先檢查 generator_notes.md 的 `Forbidden patterns violated this iteration` 段落：
-- 該段落內容真實且具體（能在輸出中看到該違反） → 不扣分
-- 該段落空白或敷衍（例如『我把藍色改成紫色』這種字面遊戲）→ **整體最終分數額外扣 5-10 分**並在 `critical_issue` 中說明
+**v1.2 違反查核（pre-register 比對）**：評分前比對 generator_notes.md 的 `Pre-registered violation`（生成前的宣告）與 `Forbidden patterns violated`（成品），再對照實際輸出：
+- 宣告的違反**確實出現在成品中**（你能在圖/碼裡看到） → 不扣分
+- 宣告了卻**沒做到**、或成品與宣告不符、或內容敷衍（例如『把藍色改成紫色』這種字面遊戲）→ **整體最終分數額外扣 5-10 分**並在 `critical_issue` 說明
+- 標明「本輪無適用禁區（豁免）」 → 確認 task_tags 確實沒有適用禁區，屬實則不扣分
+- 援引「convention exception」 → 審核其論證：論證具體且成立（慣例在此確實最優）→ 不扣分；論證敷衍或只是規避 → 視同未違反扣分
 
 
 | 分數範圍 | 標準 |

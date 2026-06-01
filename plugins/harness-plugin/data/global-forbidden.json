@@ -1,10 +1,12 @@
 {
-  "version": "1.0",
-  "description": "AI 生成設計時最常落入的『預設套路』。Generator 每輪必須明確違反至少 1 條並 documented。使用者可在 .harness/context.json 用 additional_forbidden / disabled_forbidden 自訂。",
+  "version": "1.1",
+  "description": "AI 生成設計時最常落入的『預設套路』。Generator 每輪必須明確違反至少 1 條（限 applies_to 匹配本任務 task_tags 的條目）並 documented。使用者可在 .harness/context.json 用 additional_forbidden / disabled_forbidden 自訂。",
+  "tag_vocabulary": "applies_to 標籤：web（網頁渲染專屬，如 nav / hover / 版型結構）、visual（視覺通則，如色彩 / 字體，海報等非網頁視覺任務也適用）、copy（文案口吻）。任務的 task_tags 由 planner 寫入 dimensions.json，只有 applies_to 與 task_tags 有交集的 pattern 才生效；視覺類網頁任務 task_tags=[web,visual] 會同時吃到 web 與 visual 條目，純海報任務 task_tags=[visual] 只吃 visual 條目（略過 nav/hover 等網頁專屬）。本檔不使用 strategy / code —— 任務若無適用禁區即自動豁免，不扣分。注意：frame-shift-prompts.json 另涵蓋 strategy，與本檔為互補設計，刻意不完全對齊。",
   "patterns": [
     {
       "id": "layout-hero-grid-footer",
       "category": "structure",
+      "applies_to": ["web"],
       "rule": "禁止『Hero + 3-column grid + footer』三段式模板",
       "why": "這是 SaaS / 模板網站的 default 構圖，毫無形式辨識度",
       "violation_examples": [
@@ -17,6 +19,7 @@
     {
       "id": "layout-sticky-nav-blur",
       "category": "structure",
+      "applies_to": ["web"],
       "rule": "禁止『sticky nav + backdrop-filter blur』組合",
       "why": "2020-2025 的 SaaS 預設導覽列做法，全網都長這樣",
       "violation_examples": [
@@ -28,6 +31,7 @@
     {
       "id": "typography-default-sans",
       "category": "typography",
+      "applies_to": ["web", "visual"],
       "rule": "禁止『Inter / Roboto / system-ui / Helvetica』作主導字體",
       "why": "這四個是 AI 生成時的安全牌，立刻被看出是 AI/template",
       "violation_examples": [
@@ -39,6 +43,7 @@
     {
       "id": "typography-no-variation",
       "category": "typography",
+      "applies_to": ["web", "visual"],
       "rule": "禁止全頁只用 1 個字族無變化",
       "why": "缺乏字體層級對比就是平淡",
       "violation_examples": [
@@ -50,6 +55,7 @@
     {
       "id": "color-saas-defaults",
       "category": "color",
+      "applies_to": ["web", "visual"],
       "rule": "禁止『紫色/藍色漸層』作主色（Tailwind / SaaS 預設）",
       "why": "Stripe / Linear / 多數 SaaS 的預設色相，毫無品牌個性",
       "violation_examples": [
@@ -61,6 +67,7 @@
     {
       "id": "color-grayscale-accent",
       "category": "color",
+      "applies_to": ["web", "visual"],
       "rule": "禁止『全頁灰階 + 1 個強調色』的 SaaS 配色",
       "why": "Linear / Notion / Stripe 都是這個 pattern",
       "violation_examples": [
@@ -72,6 +79,7 @@
     {
       "id": "interaction-card-hover",
       "category": "interaction",
+      "applies_to": ["web"],
       "rule": "禁止『卡片 hover: translateY(-4px) + box-shadow』組合",
       "why": "Material Design 以來的標準卡片互動，全網一樣",
       "violation_examples": [
@@ -84,6 +92,7 @@
     {
       "id": "interaction-static-page",
       "category": "interaction",
+      "applies_to": ["web"],
       "rule": "禁止整頁完全靜態無任何 scroll-driven / parallax / 互動效果",
       "why": "網頁獨有的能力沒被使用，等於浪費 medium",
       "violation_examples": [
@@ -96,6 +105,7 @@
     {
       "id": "copy-generic-cta",
       "category": "copy",
+      "applies_to": ["web", "copy"],
       "rule": "禁止中性 CTA 文案：「了解更多」/「立即開始」/「Get Started」/「Learn More」",
       "why": "AI 生成文案的安全牌，沒有品牌口吻",
       "violation_examples": [
@@ -107,6 +117,7 @@
     {
       "id": "copy-saas-value-prop",
       "category": "copy",
+      "applies_to": ["web", "copy"],
       "rule": "禁止 SaaS 標準 value prop：「節省時間」/「提升效率」/「Trusted by 1000+」",
       "why": "AI 生成的安全文案套路",
       "violation_examples": [
@@ -118,6 +129,7 @@
     {
       "id": "structure-saas-funnel",
       "category": "structure",
+      "applies_to": ["web"],
       "rule": "禁止『Features grid → Testimonials → Pricing → CTA』SaaS landing 漏斗結構",
       "why": "Y Combinator 教科書版型，所有 SaaS 都長這樣",
       "violation_examples": [
@@ -129,6 +141,7 @@
     {
       "id": "mobile-hamburger-drawer",
       "category": "mobile",
+      "applies_to": ["web"],
       "rule": "禁止標準 hamburger menu + 側拉 drawer mobile nav",
       "why": "Material / iOS 標配，全網一致",
       "violation_examples": [
@@ -140,8 +153,13 @@
   ],
   "rules": {
     "required_violations_per_iteration": 1,
+    "violation_scope": "只計算 applies_to 與本任務 task_tags 有交集的 pattern；若沒有任何 pattern 適用本任務（例如純 code 任務），本輪強制違反要求自動豁免，不扣分。",
     "violation_must_be_documented_in_generator_notes": true,
+    "violation_must_be_pre_registered": true,
+    "pre_registration_note": "Generator 必須在生成『之前』於 generator_notes.md 宣告本輪打算違反哪一條與如何違反；evaluator 比對成品是否真的做到。",
     "evaluator_must_verify_violations": true,
-    "unverified_violations_deduct_points": true
+    "unverified_violations_deduct_points": true,
+    "convention_exception_allowed": true,
+    "convention_exception_note": "若 generator 認為某情境下慣例本身才是最佳解，可選擇不違反該條，但必須在 generator_notes.md 明確論證『為何慣例在此最優』。Evaluator 審核此論證：論證成立則不扣分，論證敷衍則視同未違反。此出口避免為新而新。"
   }
 }

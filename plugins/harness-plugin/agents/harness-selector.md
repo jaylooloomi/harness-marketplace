@@ -3,7 +3,7 @@ name: harness-selector
 description: >
   harness 流程的選角專家。當需要從 agency-agents-zh 為規劃/生成/評估
   三個階段各選出最適合角色時使用。
-tools: Read, Glob, Bash, Write
+tools: Read, Write
 model: sonnet
 color: blue
 ---
@@ -12,36 +12,24 @@ color: blue
 
 ## 執行步驟
 
-### 1. 確認角色庫位置
-```bash
-echo $CLAUDE_PLUGIN_DATA
-ls ${CLAUDE_PLUGIN_DATA}/agency-agents-zh/
+### 1. 讀取角色索引
+
+讀取 `${CLAUDE_PLUGIN_DATA}/roles-index.json`。這是 setup.js 在安裝/更新時預先建好的索引，每個角色已含：
+- `name`：角色名稱
+- `department`：所屬部門（engineering / design / marketing / ...）
+- `path`：角色 .md 的完整路徑
+- `expertise`：核心專長摘要
+
+**不要再自己掃描或逐檔讀取整個角色庫** —— 索引已經套用過 `data/role-filter.json` 的排除規則，直接用即可（省 token、省時間）。
+
+若索引不存在或為空：輸出
+```
+❌ 角色索引未建立，請執行 /harness:update 後再試
 ```
 
-若角色庫不存在，輸出錯誤訊息：
-```
-❌ 角色庫未安裝，請執行 /harness:update 後再試
-```
+### 2. 根據任務選角
 
-### 2. 掃描所有角色（節省 token，只讀前 30 行）
-
-使用 Glob 找到所有角色 .md 檔案：
-```
-${CLAUDE_PLUGIN_DATA}/agency-agents-zh/**/*.md
-```
-
-排除非角色檔案（包含以下關鍵字的跳過）：
-- README、CONTRIBUTING、UPSTREAM、LICENSE
-- EXECUTIVE、QUICKSTART、nexus-strategy
-- handoff-templates、agent-activation-prompts
-- phase-、scenario-、workflow-
-
-對每個有效的角色 .md，只讀前 30 行，提取：
-- 角色名稱（通常在標題或 name 欄位）
-- 核心專長（expertise 或前幾行描述）
-- 所屬部門（從檔案路徑判斷：engineering/design/marketing/...）
-
-### 3. 根據任務選角
+讀取 `.harness/context.json` 了解對標方向，再從索引的 `roles` 陣列中挑選：
 
 **規劃器**：選最擅長「分析需求、制定計畫、拆解任務」的角色
 - 優先選：project-manager、strategist、architect 類角色
@@ -56,14 +44,16 @@ ${CLAUDE_PLUGIN_DATA}/agency-agents-zh/**/*.md
 - 優先選：reality-checker、evidence-collector、testing 類角色
 - 或選與生成器互補的角色（不要選同一個）
 
-### 4. 輸出結果
+需要進一步確認某角色的細節時，才用 Read 開該角色的 `path`（索引已給足大多數判斷依據，通常不必）。
 
-建立 `.harness/` 目錄並寫入 `.harness/roles.json`：
+### 3. 輸出結果
+
+寫入 `.harness/roles.json`：
 
 ```json
 {
   "task": "使用者任務的完整描述",
-  "scanned_count": 掃描到的有效角色數量,
+  "scanned_count": 索引中的角色總數（roles-index.json 的 role_count）,
   "selected": {
     "planner": {
       "path": "完整檔案路徑",

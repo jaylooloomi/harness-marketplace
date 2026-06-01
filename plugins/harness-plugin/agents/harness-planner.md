@@ -21,12 +21,18 @@ color: green
 - `forbidden_patterns` — 禁區清單（generator 必須違反至少 1 條）
 
 ### 2. 分析任務性質
-判斷任務類型：
-- **視覺設計類**：網站、UI、海報、品牌
-- **文字創作類**：文案、文章、腳本、報告
-- **程式開發類**：功能、元件、系統、API
-- **策略規劃類**：計畫、方案、流程、架構
-- **其他複合類**：結合多種性質
+判斷任務類型，並對應出**標準化標籤 `task_tags`**（決定哪些禁區/框架轉換生效）：
+
+| task_type（中文） | 範例 | task_tags |
+|---|---|---|
+| 視覺設計類（網頁） | 網站、UI、landing page | `["web", "visual"]` |
+| 視覺設計類（非網頁） | 海報、品牌識別 | `["visual"]` |
+| 文字創作類 | 文案、文章、腳本、報告 | `["copy"]` |
+| 程式開發類 | 功能、元件、系統、API | `["code"]` |
+| 策略規劃類 | 計畫、方案、流程、架構 | `["strategy"]` |
+| 其他複合類 | 結合多種性質 | 取相關標籤的聯集 |
+
+`task_tags` 會寫進 dimensions.json，generator 與 iteration-decision.js 依此過濾 `applies_to`。**純 code 任務通常沒有任何適用禁區，本輪強制違反要求會自動豁免** —— 這是刻意的，技術文件/程式要的是慣例與嚴謹，不是反套路。
 
 ### 3. 生成 4 個評估維度
 
@@ -54,7 +60,8 @@ color: green
 
 ```json
 {
-  "task_type": "任務類型",
+  "task_type": "任務類型（中文分類）",
+  "task_tags": ["web", "visual"],
   "planner_role": "規劃器角色名稱",
   "analysis": "以規劃器角色視角對任務的分析（2-3句）",
   "dimensions": [
@@ -68,7 +75,7 @@ color: green
     },
     ...（共 4 個）
   ],
-  "generator_instruction": "給生成器的特別指示，必須包含三段：(1) 本任務最需要注意的點；(2) 對標方向（呼應 references）；(3) 提醒『禁區清單見 context.json，本輪必須違反至少 1 條 forbidden pattern 並 documented』"
+  "generator_instruction": "給生成器的特別指示，必須包含三段：(1) 本任務最需要注意的點；(2) 對標方向（呼應 references）；(3) 提醒『禁區清單見 context.json，只計算 applies_to 與本任務 task_tags 有交集者；本輪必須先 pre-register 再違反至少 1 條（無適用條目則豁免）並 documented』"
 }
 ```
 

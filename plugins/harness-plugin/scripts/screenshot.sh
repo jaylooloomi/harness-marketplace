@@ -3,7 +3,7 @@
 #
 # Usage: screenshot.sh <html_path> <output_dir>
 #
-# Preferred path: node + puppeteer-core (installed by install-agents.sh into
+# Preferred path: node + puppeteer-core (installed by setup.js into
 # ${CLAUDE_PLUGIN_DATA}/screenshot-tool/). Captures:
 #   desktop.png         (1440x900 viewport)
 #   desktop_full.png    (full-page, 1440 wide)
@@ -81,7 +81,7 @@ fi
 
 # ----- Fallback: chrome CLI viewport-only -----
 echo "⚠️  puppeteer-core not available — falling back to chrome CLI (viewport-only)." >&2
-echo "    Run install-agents.sh with node + npm to enable full-page screenshots." >&2
+echo "    Run /harness:update (node setup.js) with node + npm to enable full-page screenshots." >&2
 
 HTML_ABS="$(cd "$(dirname "$HTML_PATH")" && pwd)/$(basename "$HTML_PATH")"
 OUTPUT_ABS="$(cd "$OUTPUT_DIR" && pwd)"

@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "description": "Single source of truth for deciding which .md files in agency-agents-zh count as selectable roles. Consumed by scripts/setup.js (builds roles-index.json + role count) and agents/harness-selector.md (selection). This is the ONLY place the exclusion logic should live — do not re-hardcode it in scripts or agent prompts.",
+  "include_glob": "**/*.md",
+  "exclude_name_keywords": [
+    "README",
+    "CONTRIBUTING",
+    "UPSTREAM",
+    "LICENSE",
+    "EXECUTIVE",
+    "QUICKSTART",
+    "nexus-strategy",
+    "handoff-templates",
+    "agent-activation-prompts"
+  ],
+  "exclude_name_prefixes": [
+    "phase-",
+    "scenario-",
+    "workflow-"
+  ],
+  "matching": "Case-insensitive against the file basename (without directory). A file is a role IFF it matches include_glob AND its basename contains none of exclude_name_keywords AND its basename starts with none of exclude_name_prefixes."
+}

@@ -1,10 +1,11 @@
 {
-  "version": "1.0",
-  "description": "強制 pivot 時注入的『框架轉換』提示。每個 prompt 提供一個非網頁的設計框架，要求 generator 先在那個框架中思考，再翻譯回網頁。用過的 prompt 記錄在 context.json.frame_shift_used，不重複使用。",
+  "version": "1.1",
+  "description": "強制 pivot 時注入的『框架轉換』提示。每個 prompt 提供一個非網頁的設計框架，要求 generator 先在那個框架中思考，再翻譯回網頁。用過的 prompt 記錄在 context.json.frame_shift_used，不重複使用。applies_to 標記此 frame 適用的 task_tags（iteration-decision.js 依此過濾；若無 frame 匹配則退回全部）。本檔涵蓋 web / visual / copy / strategy；與 global-forbidden.json（web / visual / copy）為互補設計，strategy 只在本檔出現，刻意不對齊。",
   "prompts": [
     {
       "id": "physical-exhibition",
       "frame": "實體展覽 / Physical Exhibition",
+      "applies_to": ["web", "visual"],
       "trigger_question": "如果這不是個網站，而是一場實體展覽，會怎麼設計？",
       "thinking_lens": "訪客如何走進空間？被什麼吸引？順著什麼動線走？離開時帶走什麼？空間如何分區？哪裡有展示、哪裡有休息？",
       "translation_back": "把空間動線翻譯回網頁：scroll = 走動、section = 展廳分區、interactive = 互動展品、footer = 出口紀念品店",
@@ -17,6 +18,7 @@
     {
       "id": "photo-book",
       "frame": "攝影集 / Photo Book",
+      "applies_to": ["web", "visual"],
       "trigger_question": "如果這是一本攝影集而非網頁，會怎麼設計？",
       "thinking_lens": "翻頁節奏？開篇與結尾？哪些是大圖跨頁、哪些是小圖配長文？章節之間如何呼吸？",
       "translation_back": "scroll 是新的翻頁；大留白是章節分隔；scroll-snap 是『翻過去就停在那一頁』",
@@ -29,6 +31,7 @@
     {
       "id": "video-game-level",
       "frame": "Video Game Level",
+      "applies_to": ["web", "visual"],
       "trigger_question": "如果這是個 video game 的一關，會怎麼設計？",
       "thinking_lens": "玩家進場時看到什麼？要往哪走？路上有什麼障礙、彩蛋、發現？離開時帶走什麼成就感？",
       "translation_back": "首頁 = 進場、navigation = 探索路徑、conversion = 過關、easter eggs = 隱藏細節",
@@ -41,6 +44,7 @@
     {
       "id": "magazine-spread",
       "frame": "雜誌跨頁 / Magazine Spread",
+      "applies_to": ["web", "visual", "copy"],
       "trigger_question": "如果這是雜誌的跨頁，會怎麼排？",
       "thinking_lens": "標題字體可以多大？大圖位置在哪邊？文字怎麼破格、繞圖？哪裡可以不對稱、不工整？",
       "translation_back": "把『單頁跨欄』翻譯到 scroll-driven 敘事；用 grid + asymmetric block 取代規整格線",
@@ -53,6 +57,7 @@
     {
       "id": "handwritten-letter",
       "frame": "手寫信 / Handwritten Letter",
+      "applies_to": ["web", "visual", "copy"],
       "trigger_question": "如果這是一封手寫信，會怎麼寫？",
       "thinking_lens": "個性、語氣、節奏、留白、不對稱、不完美、有手感",
       "translation_back": "用手寫字體（如 Caveat / Reenie Beanie）做標題；CSS skew 製造輕微歪斜；不完美對齊；對話式文案",
@@ -64,6 +69,7 @@
     {
       "id": "documentary-film",
       "frame": "紀錄片開場 / Documentary Opening",
+      "applies_to": ["web", "visual", "copy"],
       "trigger_question": "如果這是支紀錄片的開場 3 分鐘，會怎麼拍？",
       "thinking_lens": "鏡頭（廣角還是特寫？）、敘事弧線、情緒、暗場與亮場的節奏、配樂與留白",
       "translation_back": "scroll-driven 場景切換；video / GIF / 大圖作為『鏡頭』；文字節奏模擬旁白",
@@ -75,6 +81,7 @@
     {
       "id": "subway-system",
       "frame": "地鐵路線圖 / Subway Map",
+      "applies_to": ["web", "visual", "strategy"],
       "trigger_question": "如果這是地鐵路線圖，會怎麼組織？",
       "thinking_lens": "節點（站）、連線、轉乘點、路線顏色、空間配置",
       "translation_back": "用 graph / network 視覺化代替傳統 nav；連結用線連起來而非列表；hub 是視覺重心",
@@ -86,6 +93,7 @@
     {
       "id": "tarot-card-spread",
       "frame": "塔羅牌陣 / Tarot Spread",
+      "applies_to": ["web", "visual"],
       "trigger_question": "如果這是一場塔羅占卜的牌陣，會怎麼呈現？",
       "thinking_lens": "每張卡有獨立意義、卡之間有關聯、有儀式感、有揭曉的節奏",
       "translation_back": "點擊揭開（不是 hover）；每個內容都是『一張卡』；卡之間有空間距離與順序感",

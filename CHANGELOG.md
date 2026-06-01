@@ -4,6 +4,89 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-06-01
+
+### Why this release
+A structured review of the v1.1 system surfaced three root problems. (1) The
+iteration state machine lived in prose: the model re-did the arithmetic,
+recomputed the round number three different ways, and never cleared the
+frame-shift flag — so a stale frame leaked into every later round. (2) The
+whole anti-pattern apparatus was web-only despite the system advertising
+support for copy / strategy / code tasks. (3) The bash-only installer silently
+failed on Windows (no git-bash). This release moves the loop's decisions into
+code, gates the machinery by task type, and makes install/update cross-platform.
+
+### Added
+- **`scripts/iteration-decision.js`** — the loop's single deterministic
+  decision point. Owns the authoritative iteration count (derived from the
+  score.json files on disk), the score series, schema validation, the
+  plateau / forced-pivot logic, and the `frame_shift_active` lifecycle.
+  Replaces the prose arithmetic in SKILL.md Step 5. Ships a `selftest` mode.
+- **`scripts/setup.js`** — cross-platform (Node) installer/updater. Clones the
+  role library (shallow-aware update), builds `roles-index.json`, and installs
+  puppeteer-core. Replaces `install-agents.sh` / `update-agents.sh`; the
+  PostInstall hook now runs `node setup.js install`.
+- **`data/role-filter.json`** — single source of truth for the role-exclusion
+  filter (previously duplicated and inconsistent across the selector and the
+  two shell scripts).
+- **`roles-index.json`** (built at install/update) — the selector reads this
+  once instead of scanning ~200+ role files on every run.
+- **`applies_to` task-type tags** on every forbidden pattern and frame-shift
+  prompt, plus **`task_tags`** emitted by the planner — the anti-pattern
+  machinery now only fires for task types it fits (web/visual) and is waived
+  for copy / strategy / code.
+- **Pre-registration of forbidden violations** — the generator declares which
+  pattern it will violate (and how) *before* generating; the evaluator checks
+  the artifact against that pre-commitment. Plus a documented
+  "convention is optimal here" exception so the system isn't forced into
+  novelty-for-novelty's-sake.
+- **Optional best-of-N** (`candidates_per_round`) — parallel candidates per
+  round into `iteration_N/candidate_M/`, evaluator scores each and picks the
+  winner. Per-candidate state is namespaced so parallel writers never clobber
+  the shared `context.json`.
+- **Auto-written `.harness/.gitignore`** (`*`) so the working dir isn't
+  accidentally committed into a user's own repo.
+
+### Changed
+- **SKILL.md Step 5** now calls `iteration-decision.js` and acts on its JSON
+  output instead of performing the arithmetic itself.
+- **Forced pivot every 3rd round now yields to a strongly-improving
+  trajectory** (last-round gain ≥ 4 points) so a healthy sub-threshold run is
+  refined, not abandoned near success.
+- **Evaluator** reads `desktop_full` + `mobile` by default and a per-section
+  screenshot only when a dimension flags a concern (cuts the recurring
+  multimodal cost that scaled with section count × every round).
+- **Image references** are converted to a text description at intake — the
+  evaluator subagent cannot see images pasted in the main session, so a raw
+  image reference was previously a dead input.
+- **Least privilege**: `Bash` removed from the selector and generator tool
+  grants (only the evaluator, which runs the screenshot script, keeps it).
+- **`screenshot.js`** tolerates a non-settling page (resilient `goto`), waits
+  on `document.fonts.ready` before capture, and falls back to viewport-region
+  screenshots when a layout exposes fewer than two id'd landmarks
+  (`section`/`main`/`article[id]`).
+
+### Fixed
+- **`frame_shift_active` was set on a pivot round but never cleared**, so the
+  same frame was wrongly re-applied on every following round until the next
+  pivot. It is now owned (set on pivot, cleared on refine) by
+  `iteration-decision.js`.
+- **Role count is no longer hardcoded inconsistently** — the README claimed
+  both "80+" and "242"; `setup.js` now reports the live count and the docs use
+  a non-asserting "200+".
+
+### Removed
+- `scripts/install-agents.sh` and `scripts/update-agents.sh` — superseded by
+  the cross-platform `scripts/setup.js`. (`screenshot.sh` remains, since the
+  evaluator invokes it through bash.)
+
+### Deferred (still)
+- Multi-evaluator personas with conflicting values — would reduce judge
+  variance but needs a larger orchestration change; revisit after best-of-N
+  sees real use.
+
+---
+
 ## [1.1.0] — 2026-05-25
 
 ### Why this release
@@ -164,6 +247,7 @@ least one polish round for non-trivial work.
 - Iteration loop runs up to 10 rounds until score ≥ 80, otherwise
   emits all versions.
 
+[1.2.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.1.0
 [1.0.3]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.3
 [1.0.2]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.2

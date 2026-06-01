@@ -5,14 +5,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Latest Release](https://img.shields.io/github/v/release/jaylooloomi/harness-marketplace?label=release&color=blue)](https://github.com/jaylooloomi/harness-marketplace/releases/latest)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.139%2B-orange)](https://docs.claude.com/en/docs/claude-code)
-[![Node.js](https://img.shields.io/badge/Node.js-optional%2C%20enables%20full--page%20screenshots-green)](https://nodejs.org/)
-[![Roles](https://img.shields.io/badge/roles-242%20from%20agency--agents--zh-purple)](https://github.com/jnMetaCode/agency-agents-zh)
+[![Node.js](https://img.shields.io/badge/Node.js-install%20%2B%20full--page%20screenshots-green)](https://nodejs.org/)
+[![Roles](https://img.shields.io/badge/roles-200%2B%20from%20agency--agents--zh-purple)](https://github.com/jnMetaCode/agency-agents-zh)
 
 ---
 
 ## 這是什麼？
 
-受到 Anthropic 工程部落格《[Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)》啟發，結合 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 的 80+ 個專業角色，打造一套「輸入任務 → 自動選角 → 規劃 → 生成 → 評估 → 迭代」的完整流程。
+受到 Anthropic 工程部落格《[Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)》啟發，結合 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 的 200+ 個專業角色，打造一套「輸入任務 → 自動選角 → 規劃 → 生成 → 評估 → 迭代」的完整流程。
 
 ### 核心概念
 
@@ -27,7 +27,7 @@
    ↓
 系統載入禁區清單（12 條 AI 常見預設套路）
    ↓
-自動從 242 個專業角色中選出最適合的 3 個角色
+自動從 200+ 個專業角色中選出最適合的 3 個角色
    ↓
 規劃器角色：分析任務，設計 4 個評估維度（至少 1 個直接對標 references）
    ↓
@@ -47,11 +47,18 @@
 - 🚫 **禁區清單**：12 條 AI 預設套路，generator 每輪必須違反至少 1 條
 - 🔄 **強制 pivot + 框架轉換**：避免 polish trap，每 3 輪強制橫向思考
 
+**v1.2 強化**（可靠性與通用性）：
+- 🧩 **任務類型分流**：禁區/框架轉換用 `applies_to` 標籤，非網頁任務（文案/策略/程式）不再被套用網頁專屬規則
+- 🧮 **決策腳本**：迭代計數、plateau/pivot、frame-shift 生命週期、schema 驗證集中到 `iteration-decision.js`，不再靠 prose 心算；每 3 輪強制 pivot 新增「明顯進步則放行」護欄
+- 🪟 **跨平台安裝**：改用 Node 腳本，Windows 無 git-bash 也能裝
+- 📇 **角色索引**：選角讀預建索引，不再每次掃全部角色檔
+- 🔢 **可選 best-of-N**：`candidates_per_round` 開啟同輪平行生成多版本擇優
+
 ---
 
 ## 安裝
 
-需要：**Claude Code v2.1.139+**
+需要：**Claude Code v2.1.139+** 與 **Node.js**（外掛安裝/更新由跨平台 Node 腳本執行；Claude Code 環境通常已內建，Windows 無需 git-bash）。視覺類任務的完整頁截圖也用到 Node + puppeteer-core。
 
 ### 步驟一：加入 Marketplace
 
@@ -141,8 +148,10 @@
 
 ```
 .harness/
+├── .gitignore           ← 內容 "*"，避免在你的 repo 誤 commit（v1.2）
+├── context.json         ← 對標 + 禁區 + frame-shift 歷程 + 迭代分數
 ├── roles.json           ← 本次選用的角色
-├── dimensions.json      ← 自動生成的 4 個評估維度
+├── dimensions.json      ← 自動生成的 4 個評估維度（含 task_type / task_tags）
 └── output/
     ├── iteration_1/     ← 第一輪輸出
     │   ├── index.html   ← 實際輸出物（依任務類型不同）
@@ -189,10 +198,16 @@ harness-marketplace/
 └── plugins/
     └── harness-plugin/
         ├── .claude-plugin/
-        │   └── plugin.json       ← Plugin 宣告（含 PostInstall hook）
+        │   └── plugin.json       ← Plugin 宣告（PostInstall 跑 node setup.js）
         ├── scripts/
-        │   ├── install-agents.sh ← 安裝時自動 clone agency-agents-zh
-        │   └── update-agents.sh  ← 更新角色庫
+        │   ├── setup.js              ← 跨平台安裝/更新：clone 角色庫 + 建索引 + puppeteer
+        │   ├── iteration-decision.js ← 迭代決策：計數/plateau/pivot/frame-shift/schema 驗證
+        │   ├── screenshot.sh         ← 偵測瀏覽器並轉呼叫 screenshot.js（fallback chrome CLI）
+        │   └── screenshot.js         ← puppeteer-core 全頁 + 分段截圖
+        ├── data/
+        │   ├── global-forbidden.json    ← 禁區清單（applies_to 依任務類型分流）
+        │   ├── frame-shift-prompts.json ← 框架轉換 prompt
+        │   └── role-filter.json         ← 角色過濾規則（單一來源）
         ├── agents/
         │   ├── harness-selector.md  ← 動態掃描選角（sonnet）
         │   ├── harness-planner.md   ← 規劃 + 自動生成維度（sonnet）
