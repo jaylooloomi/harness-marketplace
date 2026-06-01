@@ -18,5 +18,11 @@
     "scenario-",
     "workflow-"
   ],
-  "matching": "Case-insensitive against the file basename (without directory). A file is a role IFF it matches include_glob AND its basename contains none of exclude_name_keywords AND its basename starts with none of exclude_name_prefixes."
+  "exclude_path_segments": [
+    ".github",
+    "examples",
+    "integrations",
+    "scripts"
+  ],
+  "matching": "Case-insensitive. A file is a role IFF: it matches include_glob; it lives INSIDE a department subdirectory (a root-level .md is a doc, never a role); none of its directory segments is in exclude_path_segments (meta dirs like .github / examples / integrations / scripts are not role departments); its basename contains none of exclude_name_keywords; and its basename starts with none of exclude_name_prefixes."
 }

@@ -31,6 +31,27 @@ async function loadAndSettle(page, url) {
   await new Promise(r => setTimeout(r, 300));
 }
 
+// Scroll through the whole page so scroll-reveal / IntersectionObserver content
+// fires and stays visible before the full-page capture. Without this, fullPage
+// screenshots of reveal-based pages (which the anti-pattern rules actively
+// encourage) come out as empty colored bands, and an evaluator reading only
+// *_full.png would score a false zero.
+async function triggerReveals(page) {
+  await page.evaluate(async () => {
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const step = Math.max(250, Math.floor(window.innerHeight * 0.5));
+    // Re-read scrollHeight each iteration in case revealing content grows layout.
+    for (let y = 0; y <= document.body.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await sleep(140);
+    }
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep(250);
+    window.scrollTo(0, 0);
+    await sleep(200);
+  });
+}
+
 async function main() {
   const [htmlPath, outputDir, chromePath] = process.argv.slice(2);
 
@@ -83,6 +104,7 @@ async function main() {
     // ---------- Desktop ----------
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
     await loadAndSettle(page, url);
+    await triggerReveals(page);
 
     await page.screenshot({
       path: path.join(outputDir, 'desktop.png'),
@@ -131,6 +153,7 @@ async function main() {
     // ---------- Mobile ----------
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true });
     await loadAndSettle(page, url);
+    await triggerReveals(page);
 
     await page.screenshot({
       path: path.join(outputDir, 'mobile.png'),

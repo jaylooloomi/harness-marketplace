@@ -64,7 +64,7 @@ color: yellow
 - 一定要做 RWD，mobile viewport 也會被截圖
 - 字體、配色、留白、Hero 衝擊力 — 這些「看得到」的東西最重要
 - 自帶 `<style>` 內嵌完整 CSS，**不要依賴外部 CDN 字體之外的任何網路資源**（headless 環境網路可能受限）
-- **字體與截圖時序（v1.2 重要）**：截圖器會等頁面載入。若用 CDN webfont，**務必**：(a) `@font-face` 或 `font-family` 一定要帶系統 fallback（例如 `"Playfair Display", Georgia, serif`），(b) 加 `font-display: swap`。否則 CDN 字體載入慢時會卡到截圖逾時、或截到沒字的空畫面。若不確定網路，優先用系統襯線/無襯線堆疊或自帶 SVG/字型，仍可滿足「換掉預設字體」的禁區要求。
+- **字體與截圖時序（v1.2 重要）**：截圖環境網路可能受限，generator 無從得知。**預設優先用系統字體堆疊**（如襯線 `Georgia, "Noto Serif TC", serif`，或 monospace）來達成「換掉預設無襯線」的禁區要求 —— 最穩、零網路依賴。**若**真要用 CDN webfont，**務必**：(a) `font-family` 一定帶系統 fallback（例如 `"Playfair Display", Georgia, serif`），(b) 加 `font-display: swap`；否則 CDN 慢時會卡到截圖逾時或截到空畫面。
 - 圖片用 placeholder（純 CSS / SVG / unsplash 連結都行），但要確認 render 出來不會破版
 
 ### 5. 儲存輸出

@@ -68,6 +68,8 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 
 **只有當你從上面兩張懷疑某個 section 有問題時**（例如某段配色突兀、某段排版崩），才**額外**讀那一張 `desktop_<section>.png` 來確認。不要一律把每張 section 圖都讀進來。
 
+> 🔎 **空白色塊判讀**：`*_full.png` 截圖前已自動捲動觸發 scroll-reveal，正常情況各段都有內容。萬一仍看到某段是「純色空白塊」，那多半是該段 reveal 尚未觸發的假象，**請改讀對應的 `desktop_<id>.png` / `desktop_region_N.png` 確認後再評**，不要直接當成「該段空白」扣分。
+
 **以人眼看圖的方式評分**，重點檢查：
 - 第一眼印象（醜 / 普通 / 有質感 / 有驚喜）
 - 色彩搭配是否協調、有品牌個性

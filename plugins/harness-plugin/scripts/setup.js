@@ -62,6 +62,14 @@ function loadFilter() {
 function isRoleFile(relPath, filter) {
   const base = path.basename(relPath).toLowerCase();
   if (!base.endsWith('.md')) return false;
+  const segs = relPath.split(/[\\/]/);
+  // A role lives inside a department subdirectory — root-level .md are docs.
+  if (segs.length < 2) return false;
+  // Skip meta directories that are not role departments (.github, examples, ...).
+  const dirs = segs.slice(0, -1).map(s => s.toLowerCase());
+  for (const seg of filter.exclude_path_segments || []) {
+    if (dirs.includes(String(seg).toLowerCase())) return false;
+  }
   for (const kw of filter.exclude_name_keywords || []) {
     if (base.includes(String(kw).toLowerCase())) return false;
   }
@@ -200,15 +208,20 @@ function selftest() {
   const filter = loadFilter();
   const cases = [
     ['engineering/backend-architect.md', true],
-    ['design/ui-designer.md', true],
-    ['README.md', false],
-    ['docs/CONTRIBUTING.md', false],
-    ['workflow-handoff.md', false],
-    ['phase-1-kickoff.md', false],
-    ['scenario-launch.md', false],
-    ['marketing/nexus-strategy.md', false],
-    ['engineering/handoff-templates.md', false],
+    ['design/design-brand-guardian.md', true],
+    ['game-development/game-developer.md', true],
     ['ENGINEERING/Backend-Architect.MD', true],
+    ['README.md', false],                                                 // root doc
+    ['AGENT-LIST.md', false],                                             // root doc (the "general" leak)
+    ['CATALOG.md', false],                                                // root doc
+    ['docs/CONTRIBUTING.md', false],                                      // keyword
+    ['.github/ISSUE_TEMPLATE/bug_report.md', false],                      // meta dir
+    ['examples/nexus-spatial-discovery.md', false],                       // meta dir
+    ['examples/workflow-landing-page.md', false],                         // meta dir + prefix
+    ['integrations/mcp-memory/backend-architect-with-memory.md', false],  // meta dir
+    ['scripts/build.md', false],                                          // meta dir
+    ['marketing/nexus-strategy.md', false],                               // keyword
+    ['specialized/workflow-thing.md', false],                             // prefix inside a dept
   ];
   let pass = 0;
   for (const [p, want] of cases) {
