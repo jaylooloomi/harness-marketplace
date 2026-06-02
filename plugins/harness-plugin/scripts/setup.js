@@ -51,7 +51,19 @@ function run(cmd, args, opts = {}) {
   return r.status === 0;
 }
 
-function npmCmd() { return isWin ? 'npm.cmd' : 'npm'; }
+// Run npm robustly. Prefer npm's JS entry that ships next to the running node
+// (process.execPath) — invoked with the SAME node, so it needs no PATH lookup,
+// no .cmd, and no shell-quoting (works even when the exec environment's PATH
+// lacks the Node dir, which is why first-run puppeteer installs were failing).
+// Falls back to npm / npm.cmd on PATH.
+function runNpm(args, opts = {}) {
+  const npmCli = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+  if (fs.existsSync(npmCli)) {
+    return spawnSync(process.execPath, [npmCli, ...args], { stdio: 'inherit', ...opts }).status === 0;
+  }
+  const cmd = isWin ? 'npm.cmd' : 'npm';
+  return spawnSync(cmd, args, { stdio: 'inherit', ...opts, shell: isWin }).status === 0;
+}
 
 // ---------- role-filter (single source of truth, shared with the selector) ----------
 
@@ -196,16 +208,16 @@ function installPuppeteer() {
     log('✅ puppeteer-core already installed');
     return;
   }
-  if (!run(npmCmd(), ['--version'], { stdio: 'ignore' })) {
+  if (!runNpm(['--version'], { stdio: 'ignore' })) {
     log('⚠️  npm not found — skipping puppeteer-core (screenshot.sh will use chrome CLI, viewport-only)');
     return;
   }
   fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
   if (!fs.existsSync(path.join(SCREENSHOT_DIR, 'package.json'))) {
-    run(npmCmd(), ['init', '-y'], { cwd: SCREENSHOT_DIR, stdio: 'ignore' });
+    runNpm(['init', '-y'], { cwd: SCREENSHOT_DIR, stdio: 'ignore' });
   }
   log('📥 installing puppeteer-core (~5-10s)...');
-  const ok = run(npmCmd(), ['install', 'puppeteer-core', '--no-fund', '--no-audit'], { cwd: SCREENSHOT_DIR });
+  const ok = runNpm(['install', 'puppeteer-core', '--no-fund', '--no-audit'], { cwd: SCREENSHOT_DIR });
   log(ok && fs.existsSync(path.join(SCREENSHOT_DIR, 'node_modules', 'puppeteer-core'))
     ? '✅ puppeteer-core installed — full-page screenshots enabled'
     : '❌ puppeteer-core install failed — screenshot.sh will fall back to chrome CLI');

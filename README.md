@@ -74,8 +74,12 @@
 /plugin install harness-plugin@harness-marketplace
 ```
 
+安裝後**務必執行 `/reload-plugins`**（或重啟 Claude Code）讓外掛的指令、skill、agents 生效 —— **這步不能省**，否則 `/harness-plugin:…` 會顯示「Unknown command」。
+
 > 💡 **第一次使用**（描述任務或執行 `/harness-plugin:harness`）時，系統會自動下載 agency-agents-zh 角色庫並建立索引（需要網路，約 10–30 秒），之後就直接用。
-> 想先手動觸發下載也可以：安裝後執行一次 `/harness-plugin:harness-update`。
+> 想先手動觸發下載也可以：reload 後執行一次 `/harness-plugin:harness-update`。
+>
+> ⚠️ 指令請**一行一行**輸入,不要把多行一次貼上。
 
 ### 步驟三：確認安裝成功
 
