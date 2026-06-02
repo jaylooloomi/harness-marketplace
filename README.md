@@ -21,23 +21,24 @@
 你輸入 → AI 輸出 → 結束
 ```
 
-這個系統是這樣（v1.1+）：
+這個系統是這樣（v1.4）：
 ```
-你輸入任務 + 1-3 個對標參考（『天花板等級』範例）
+你輸入任務
    ↓
-系統載入禁區清單（12 條 AI 常見預設套路）
+Step 0  自動上網找 5 個「天花板級」範例當對標 seed（你可加/換）＋ 載入 12 條禁區
    ↓
-自動從 200+ 個專業角色中選出最適合的 3 個角色
+Step 1  從 200+ 專業角色選出 規劃/生成/評估 三角色
+        ＋ 三角色投票，從 nuwa 蒸餾人物選一名「CTO 評審」
    ↓
-規劃器角色：分析任務，設計 4 個評估維度（至少 1 個直接對標 references）
+Step 2  規劃器：設計 4 個評估維度（至少 1 個直接對標 seed）
    ↓
-生成器角色：實際創作（必須違反至少 1 條禁區套路並 documented）
+Step 3  生成器：實際創作（每輪必須違反至少 1 條禁區並 documented）
    ↓
-評估器角色：對標 references 嚴格打分 + 查核違反禁區是否屬實
+Step 4  主評審截圖看圖嚴打分　＋　CTO 評審用決策者視角共評 → 混合總分
    ↓
 分數 < 90 → 自動迭代
-        ├ 每 3 輪 或 偵測到 polish trap → 強制 pivot + 注入框架轉換 prompt
-        │  （例如「如果這是實體展覽會怎麼設計？」）
+        ├ 每 3 輪 / plateau → 強制 pivot ＋ 注入框架轉換（「如果這是實體展覽？」）
+        │  （但明顯進步則放行 refine）
         └ 否則 refine
 分數 ≥ 90 → 輸出所有版本，讓你選擇
 ```
@@ -236,6 +237,7 @@ harness-marketplace/
 - [Anthropic Engineering Blog — Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - [agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski
 - [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) by jnMetaCode
+- [nuwa-skill](https://github.com/alchaincyf/nuwa-skill) by alchaincyf — CTO 評審的 perspective 人物來源（v1.4，MIT）
 
 ---
 
