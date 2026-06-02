@@ -8,7 +8,7 @@ description: >
   不觸發：問問題、除錯、解釋概念、修改現有小細節、純程式開發任務。
 ---
 
-# Harness 自動迭代生成系統 (v1.2+)
+# auto-review 自動迭代生成系統
 
 接到任務後，依照以下流程完整執行，不要跳過任何步驟。
 
@@ -23,7 +23,7 @@ description: >
 node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGIN_DATA}"
 ```
 這會 clone agency-agents-zh + 建 `roles-index.json` + 裝 puppeteer-core（首次約 10–30 秒，需要網路）。先告訴使用者「第一次使用,正在安裝角色庫,約 10–30 秒」,完成後再繼續流程。
-- 若安裝失敗（多半是沒網路）→ 提示使用者檢查網路後手動執行 `/harness-plugin:harness-update`,再重試。
+- 若安裝失敗（多半是沒網路）→ 提示使用者檢查網路後手動執行 `/auto-review:update`,再重試。
 
 建立本次任務的工作目錄，並**寫入 `.harness/.gitignore`，內容為單獨一行 `*`**，避免在使用者自己的 git repo 裡誤把 `.harness/`（含截圖）commit 進去：
 

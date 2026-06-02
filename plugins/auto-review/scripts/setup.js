@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * setup.js — cross-platform installer/updater for harness-plugin.
+ * setup.js — cross-platform installer/updater for auto-review.
  *
  * Replaces install-agents.sh / update-agents.sh. Runs identically on
  * Windows / macOS / Linux (the PostInstall hook only needs `node`, which
@@ -34,7 +34,7 @@ function argVal(flag) { const i = process.argv.indexOf(flag); return i >= 0 ? pr
 // documented canonical location. NEVER write under PLUGIN_ROOT — the plugin install dir
 // is read-only/ephemeral.
 const DATA_DIR = argVal('--data-dir') || process.env.CLAUDE_PLUGIN_DATA
-  || path.join(os.homedir(), '.claude', 'plugins', 'data', 'harness-plugin');
+  || path.join(os.homedir(), '.claude', 'plugins', 'data', 'auto-review');
 const AGENTS_DIR = path.join(DATA_DIR, 'agency-agents-zh');
 const SCREENSHOT_DIR = path.join(DATA_DIR, 'screenshot-tool');
 const INDEX_OUT = path.join(DATA_DIR, 'roles-index.json');
@@ -329,17 +329,17 @@ function main() {
   // install (default)
   log('🔍 checking agency-agents-zh role library...');
   if (fs.existsSync(path.join(AGENTS_DIR, '.git'))) {
-    log('✅ role library already present (run "/harness-plugin:harness-update" to refresh)');
+    log('✅ role library already present (run "/auto-review:update" to refresh)');
   } else if (!cloneRoles()) {
-    log('❌ clone failed — check network, then run /harness-plugin:harness-update');
+    log('❌ clone failed — check network, then run /auto-review:update');
     process.exitCode = 1;
   }
   const n = buildIndex();
   setupNuwa(false);
   installPuppeteer();
   log('');
-  log(n > 0 ? `✅ harness-plugin ready — ${n} roles indexed`
-            : `⚠️  installed, but 0 roles indexed — check network and run /harness-plugin:harness-update`);
+  log(n > 0 ? `✅ auto-review ready — ${n} roles indexed`
+            : `⚠️  installed, but 0 roles indexed — check network and run /auto-review:update`);
 }
 
 main();

@@ -82,7 +82,7 @@ async function main() {
     } catch (_) { /* try next */ }
   }
   if (!puppeteer) {
-    console.error('❌ puppeteer-core not installed. Run /harness-plugin:harness-update (needs node + npm).');
+    console.error('❌ puppeteer-core not installed. Run /auto-review:update (needs node + npm).');
     process.exit(2);
   }
 

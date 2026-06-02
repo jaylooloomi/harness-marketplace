@@ -1,8 +1,22 @@
 # Changelog
 
-All notable changes to harness-plugin are documented here.
+All notable changes to auto-review are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.6.0] — 2026-06-02
+
+### Changed
+- **Renamed the project to `auto-review`** (was `harness-marketplace` /
+  `harness-plugin`). The repo, marketplace, and plugin are now all `auto-review`;
+  the commands are **`/auto-review:run <task>`** and **`/auto-review:update`**.
+  - ⚠️ **Breaking for existing installs** — re-add the marketplace under the new
+    name: `/plugin marketplace add jaylooloomi/auto-review` →
+    `/plugin install auto-review@auto-review` → `/reload-plugins`.
+  - Internal subagent files keep their `harness-*` names (implementation detail,
+    not user-facing).
+
+[1.6.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.6.0
 
 ## [1.5.0] — 2026-06-02
 
@@ -14,7 +28,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   non-fatal (so headless/CI runs are unaffected). Toggle with
   `context.json.auto_open` (default true).
 
-[1.5.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.5.0
+[1.5.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.5.0
 
 ## [1.4.0] — 2026-06-02
 
@@ -41,7 +55,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `setup.js` now also clones nuwa-skill (non-fatal) and builds
   `perspectives-index.json` on install/update.
 
-[1.4.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.4.0
+[1.4.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.4.0
 
 ## [1.3.0] — 2026-06-02
 
@@ -67,7 +81,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   back to the chrome CLI. Resolves real install failures observed on Windows
   (npm-not-on-PATH in the exec sandbox, and a corrupt-cache ENOENT).
 
-[1.3.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.3.0
+[1.3.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.3.0
 
 ## [1.2.0] — 2026-06-01
 
@@ -143,12 +157,12 @@ code, gates the machinery by task type, and makes install/update cross-platform.
   before, on any platform). The `PostInstall` hook was removed — plugin
   lifecycle hooks are not a supported Claude Code event, so it never fired and
   the role library was never downloaded. Setup now runs **lazily on first use**:
-  the skill / `/harness-plugin:harness` command runs
+  the skill / `/auto-review:run` command runs
   `setup.js install --data-dir "${CLAUDE_PLUGIN_DATA}"` when the role index is
   missing. Data persists in the documented writable `${CLAUDE_PLUGIN_DATA}`
   (`~/.claude/plugins/data/...`); `setup.js` gained a `--data-dir` flag.
 - **Corrected the documented commands** to the plugin-namespaced
-  `/harness-plugin:harness` and `/harness-plugin:harness-update` — the old docs
+  `/auto-review:run` and `/auto-review:update` — the old docs
   said `/harness:run` / `/harness:update`, which do not exist as commands.
 - **Added `name: harness`** to the skill frontmatter (required for the skill to
   load and auto-trigger).
@@ -304,7 +318,7 @@ least one polish round for non-trivial work.
 ## [1.0.0] — 2026-05-25
 
 ### Added
-- Initial release of harness-plugin.
+- Initial release of auto-review.
 - Marketplace definition at `.claude-plugin/marketplace.json`.
 - Skill `harness/SKILL.md` — auto-triggers on creative tasks (設計 /
   撰寫 / 製作 / 重新設計 / 建立 ...).
@@ -325,9 +339,9 @@ least one polish round for non-trivial work.
 - Iteration loop runs up to 10 rounds until score ≥ 80, otherwise
   emits all versions.
 
-[1.2.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.2.0
-[1.1.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.1.0
-[1.0.3]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.3
-[1.0.2]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.2
-[1.0.1]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.1
-[1.0.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.0.0
+[1.2.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.2.0
+[1.1.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.1.0
+[1.0.3]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.3
+[1.0.2]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.2
+[1.0.1]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.1
+[1.0.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.0

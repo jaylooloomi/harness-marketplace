@@ -81,7 +81,7 @@ fi
 
 # ----- Fallback: chrome CLI viewport-only -----
 echo "⚠️  puppeteer-core not available — falling back to chrome CLI (viewport-only)." >&2
-echo "    Run /harness-plugin:harness-update (node setup.js) with node + npm to enable full-page screenshots." >&2
+echo "    Run /auto-review:update (node setup.js) with node + npm to enable full-page screenshots." >&2
 
 HTML_ABS="$(cd "$(dirname "$HTML_PATH")" && pwd)/$(basename "$HTML_PATH")"
 OUTPUT_ABS="$(cd "$OUTPUT_DIR" && pwd)"

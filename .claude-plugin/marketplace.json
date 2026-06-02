@@ -1,5 +1,5 @@
 {
-  "name": "harness-marketplace",
+  "name": "auto-review",
   "owner": {
     "name": "Arthur",
     "email": "jaylooloomi@gmail.com"
@@ -7,8 +7,8 @@
   "description": "基於 Anthropic Harness 架構 + agency-agents-zh，輸入任務自動選角→規劃→生成→評估→迭代，輸出多個高品質版本",
   "plugins": [
     {
-      "name": "harness-plugin",
-      "source": "./plugins/harness-plugin",
+      "name": "auto-review",
+      "source": "./plugins/auto-review",
       "description": "自動化多角色迭代生成系統。輸入任何任務，系統自動從 agency-agents-zh 動態選角，執行規劃→生成→評估→迭代，直到分數收斂後輸出多個版本。",
       "category": "productivity",
       "keywords": ["harness", "agent", "iterative", "generator", "evaluator"]
