@@ -1,18 +1,24 @@
 # Harness Marketplace
 
-> 基於 Anthropic Harness 架構 + agency-agents-zh 動態選角的自動迭代生成系統
+> 基於 Anthropic Harness 架構，結合 **agency-agents-zh**（專業角色）＋ **nuwa-skill**（蒸餾人物）兩個開源專案的自動迭代生成系統
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Latest Release](https://img.shields.io/github/v/release/jaylooloomi/harness-marketplace?label=release&color=blue)](https://github.com/jaylooloomi/harness-marketplace/releases/latest)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.139%2B-orange)](https://docs.claude.com/en/docs/claude-code)
 [![Node.js](https://img.shields.io/badge/Node.js-install%20%2B%20full--page%20screenshots-green)](https://nodejs.org/)
 [![Roles](https://img.shields.io/badge/roles-200%2B%20from%20agency--agents--zh-purple)](https://github.com/jnMetaCode/agency-agents-zh)
+[![Personas](https://img.shields.io/badge/personas-15%20from%20nuwa--skill-magenta)](https://github.com/alchaincyf/nuwa-skill)
 
 ---
 
 ## 這是什麼？
 
-受到 Anthropic 工程部落格《[Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)》啟發，結合 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 的 200+ 個專業角色，打造一套「輸入任務 → 自動選角 → 規劃 → 生成 → 評估 → 迭代」的完整流程。
+受到 Anthropic 工程部落格《[Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)》啟發，**結合兩個開源專案**：
+
+- **[agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh)**（jnMetaCode）的 200+ 個**專業角色** —— 用來動態選出規劃／生成／評估三角色。
+- **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)**（alchaincyf）蒸餾的**名人思維 persona**（Jobs / Munger / Naval…）—— 用來選出一名「CTO 評審」與主評審共同打分（v1.4）。
+
+打造一套「輸入任務 → 自動選角（＋選 CTO 評審）→ 規劃 → 生成 → 雙評審 → 迭代」的完整流程。
 
 ### 核心概念
 
