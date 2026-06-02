@@ -40,6 +40,12 @@ const SCREENSHOT_DIR = path.join(DATA_DIR, 'screenshot-tool');
 const INDEX_OUT = path.join(DATA_DIR, 'roles-index.json');
 const ROLE_FILTER_PATH = path.join(PLUGIN_ROOT, 'data', 'role-filter.json');
 
+// Optional second source: nuwa-skill distilled-person "perspective" personas,
+// used to elect a CTO reviewer (Step 1.2). Non-fatal if unavailable.
+const NUWA_REPO = 'https://github.com/alchaincyf/nuwa-skill';
+const NUWA_DIR = path.join(DATA_DIR, 'nuwa-skill');
+const PERSPECTIVES_OUT = path.join(DATA_DIR, 'perspectives-index.json');
+
 const isWin = process.platform === 'win32';
 
 function log(msg) { process.stdout.write(msg + '\n'); }
@@ -264,6 +270,45 @@ function selftest() {
   process.exit(pass === cases.length ? 0 : 1);
 }
 
+// ---------- nuwa perspective pool (optional) ----------
+
+function cloneNuwa() {
+  log('🧠 fetching nuwa-skill perspective pool...');
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (fs.existsSync(NUWA_DIR)) fs.rmSync(NUWA_DIR, { recursive: true, force: true });
+  return run('git', ['clone', '--depth=1', NUWA_REPO, NUWA_DIR]);
+}
+
+// Build perspectives-index.json from nuwa-skill/examples/<persona>/SKILL.md.
+// These are NOT functional roles — they're distilled thinker personas used only
+// to elect the CTO reviewer, so they live in a SEPARATE index from roles.
+function buildPerspectivesIndex() {
+  const ex = path.join(NUWA_DIR, 'examples');
+  if (!fs.existsSync(ex)) {
+    log('⚠️  nuwa-skill not present — perspective pool skipped (CTO review disabled)');
+    return 0;
+  }
+  const personas = fs.readdirSync(ex)
+    .map(d => path.join(ex, d, 'SKILL.md'))
+    .filter(p => fs.existsSync(p))
+    .map(p => { const r = parseRole(p, path.relative(NUWA_DIR, p)); return { name: r.name, path: r.path, description: r.expertise }; })
+    .sort((a, b) => a.name.localeCompare(b.name));
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(PERSPECTIVES_OUT, JSON.stringify({ source: NUWA_REPO, count: personas.length, personas }, null, 2));
+  log(`🧠 perspectives-index.json built: ${personas.length} personas`);
+  return personas.length;
+}
+
+function setupNuwa(forceRefresh) {
+  // Non-fatal: a missing perspective pool just disables CTO review.
+  try {
+    if (forceRefresh || !fs.existsSync(path.join(NUWA_DIR, '.git'))) cloneNuwa();
+    buildPerspectivesIndex();
+  } catch (e) {
+    log(`⚠️  nuwa-skill setup skipped: ${e.message}`);
+  }
+}
+
 // ---------- main ----------
 
 function main() {
@@ -275,6 +320,7 @@ function main() {
     const ok = fs.existsSync(path.join(AGENTS_DIR, '.git')) ? updateRoles() : cloneRoles();
     if (!ok) { log('❌ role library update failed (check network / git)'); process.exitCode = 1; }
     const n = buildIndex();
+    setupNuwa(true);
     log(ok ? `✅ update complete — ${n} roles available`
           : `⚠️  refresh failed; index rebuilt from existing files — ${n} roles available`);
     return;
@@ -289,6 +335,7 @@ function main() {
     process.exitCode = 1;
   }
   const n = buildIndex();
+  setupNuwa(false);
   installPuppeteer();
   log('');
   log(n > 0 ? `✅ harness-plugin ready — ${n} roles indexed`

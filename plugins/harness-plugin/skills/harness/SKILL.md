@@ -79,7 +79,9 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
      "iteration_scores": [],
      "candidates_per_round": 1,
      "threshold": 90,
-     "max_iterations": 10
+     "max_iterations": 10,
+     "cto_review": true,
+     "cto_weight": 0.3
    }
    ```
 5. 把找到的 5 個簡短列給使用者，並問：
@@ -97,7 +99,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 
 **注意**：禁區是否對本任務生效，取決於 pattern 的 `applies_to` 是否與 planner 之後寫入的 `dimensions.task_tags` 有交集 —— 這個過濾在 Step 3（生成）時做，這裡先載入完整清單即可。
 
-**使用者可選自訂**：在 `.harness/context.json` 加 `additional_forbidden` 陣列、或 `disabled_forbidden` 排除某些 id；也可設 `candidates_per_round`（best-of-N）、`threshold`、`max_iterations`。
+**使用者可選自訂**：在 `.harness/context.json` 加 `additional_forbidden` 陣列、或 `disabled_forbidden` 排除某些 id；也可設 `candidates_per_round`（best-of-N）、`threshold`、`max_iterations`、`cto_review`（true/false 開關雙評審）、`cto_weight`（CTO 占比，預設 0.3）。
 
 ---
 
@@ -108,6 +110,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 - 讀取 `.harness/context.json`（了解對標方向，可能影響選角偏好）
 - 分別為規劃/生成/評估三個階段各選出最適合的 1 個角色
 - 結果寫入 `.harness/roles.json`
+- **1.2（v1.4）CTO 評審選舉**：若 `context.json.cto_review` 為 true 且 `${CLAUDE_PLUGIN_DATA}/perspectives-index.json` 存在，selector 再讓三角色投票選出一名 CTO 評審，寫入 `roles.json.cto_reviewer`（詳見 harness-selector）。沒有 perspective 池就設 `cto_reviewer: null`，CTO 共評自動停用。
 
 ---
 
@@ -149,15 +152,22 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 
 ## Step 4：評估
 
+### 4.1 主評審
 呼叫 @harness-evaluator agent：
 - 讀取 `.harness/roles.json` 的評估器角色、`.harness/dimensions.json` 與 `.harness/context.json`
-- **若 context.json.references 有 URL，用 WebFetch 抓取簡述當對標**；若是 image 型，用其文字描述當對標
+- **對標基準用 context.json 裡每筆 reference 的 `description`**（Step 0 已上網/看圖抓好；evaluator 不上網）
 - 讀取本輪輸出（HTML → 用 `${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh` 截圖 → Read PNG）
   - **預設只讀 `desktop_full.png` + `mobile.png`**；只有當某維度懷疑特定 section 有問題時，才額外讀該 `desktop_<id>.png`（節省多模態成本，v1.2）
 - **查核 pre-registered 違反**：generator_notes.md 宣告的違反是否真的在成品中做到；敷衍或沒做到 → 扣 5-10 分
-- 嚴格打分
-- **best-of-N（若 candidates_per_round > 1）**：對每個 candidate 各打一份分數存到 `candidate_M/score.json`，挑總分最高者，把它的內容與分數複製/記錄為 `iteration_N/` 的代表，並在 `iteration_N/score.json` 標明 `winning_candidate`
-- 結果寫入 `.harness/output/iteration_N/score.json`
+- 嚴格打分；**best-of-N**（candidates_per_round > 1）時對每個 candidate 各打分存 `candidate_M/score.json`，挑最高者寫成 `iteration_N/` 代表並標 `winning_candidate`
+- 結果寫入 `.harness/output/iteration_N/score.json`（此時 `total` = 主評審 4 維度加權分）
+
+### 4.2 CTO 共評（v1.4 新增）
+若 `roles.json.cto_reviewer` 不為 null（且 `context.json.cto_review` 為 true）→ 呼叫 @harness-cto agent：
+- 它**附身**當選的 perspective 人物，用「決策者視角」獨立看同一份成品（重用 4.1 的截圖，不重截）。
+- 產出 `cto_score`（自己的尺）/ `verdict`（ship/iterate/kill）/ `block`（有無硬傷）/ dealbreaker / highlight / critique。
+- **混分寫回同一份 score.json**：`main_total` = 4.1 的分；`total` = `round(main_total×(1−cto_weight) + cto_score×cto_weight)`，若 `block` 則封頂 89。**`total` 是 Step 5 唯一會讀的數字。**
+- 若 cto_reviewer 為 null（無 perspective 池）→ 跳過，score.json 維持 4.1 原樣。
 
 ---
 
@@ -177,6 +187,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/iteration-decision.js" .harness
 - 否則 → 帶 `next_strategy`（refine / pivot）**與 `next_iteration`** 回 **Step 3** 跑下一輪。
   - **`next_iteration` 是唯一權威輪數**：明確告訴 generator 本輪寫到 `iteration_<next_iteration>/`，不要讓它自己靠「資料夾存不存在」猜（否則會與決策腳本的計數分歧）。
   - 腳本**已經**把 `frame_shift_active` 寫進 context.json（pivot 輪填入一個框架；refine 輪清成 null），generator 直接讀即可，你不需要再手動設定或清空。
+  - **若 score.json 有 `cto.dealbreaker`**（v1.4）：refine 時務必把它連同主評審的 feedback 一起交給 generator —— 這是兩個視角的改善訊號。
 
 腳本內含的判斷（你不需重做）：分數 ≥ threshold(90) 即完成；iteration ≥ 3 且最近 3 輪變動 < 3 為 plateau 強制 pivot；每 3 輪強制 pivot **但若上一輪明顯進步（≥4 分）則放行 refine**（避免砍掉健康軌跡）；evaluator 自己標 pivot 一律尊重；最多 max_iterations(10) 輪。
 
@@ -185,7 +196,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/iteration-decision.js" .harness
 ## Step 6：輸出結果
 
 列出所有已完成的 iteration 版本：
-- 顯示每個版本的總分、各維度分數、是否觸發 pivot / 用了哪個 frame-shift
+- 顯示每個版本的總分（v1.4：含 main 分 vs CTO 分、CTO verdict）、各維度分數、是否觸發 pivot / 用了哪個 frame-shift
 - 標記分數最高的版本
 - 額外標記「最有突破性」的版本（即使分數不最高 — 用了 frame-shift 的版本）
 - 顯示 `context.json.references` 提醒對標來源

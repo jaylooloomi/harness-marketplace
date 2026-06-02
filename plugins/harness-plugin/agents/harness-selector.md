@@ -77,4 +77,26 @@ color: blue
 }
 ```
 
-最後在主對話中回報選角結果摘要。
+### 4. CTO 評審選舉（1.2，v1.4 新增）
+
+選完三個角色後，若 perspective 池存在，再選出一名「CTO 評審」（會在 Step 4.2 共同評分）：
+
+1. 檢查 `${CLAUDE_PLUGIN_DATA}/perspectives-index.json` 是否存在。
+   - 不存在 → 在 roles.json 加 `"cto_reviewer": null`，並告知「無 perspective 池，CTO 共評停用」，結束。
+2. 讀取它（nuwa-skill 蒸餾的人物 personas，每筆有 `name` + `description`）。
+3. **三角色投票**：分別站在剛選出的 planner / generator / evaluator 立場，各問一次：
+   > 「以我的專業立場，我希望哪一位來當『CTO / 決策者』壓力測試這份作品 —— 看主張夠不夠清楚、值不值得做、體驗/技術站不站得住？」
+   每個角色投 1 票並附理由。計票，最高票當選；平手由你擇優（挑最能戳這個任務痛點的）。
+4. 把當選者寫進 `.harness/roles.json`（與 `selected` 同層，新增 `cto_reviewer`）：
+   ```json
+   "cto_reviewer": {
+     "name": "persona 名稱",
+     "path": "該 persona SKILL.md 的完整路徑（取自 perspectives-index.json）",
+     "votes": { "planner": "票給誰", "generator": "票給誰", "evaluator": "票給誰" },
+     "elected_reason": "一句話：為何由它擔任本任務的 CTO 評審"
+   }
+   ```
+
+### 5. 回報
+
+在主對話中回報：三個選角的角色 + 當選的 CTO 評審（含得票）。

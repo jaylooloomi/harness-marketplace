@@ -4,6 +4,33 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-06-02
+
+### Added
+- **Dual-judge evaluation with an elected "CTO reviewer."** A second source —
+  [`alchaincyf/nuwa-skill`](https://github.com/alchaincyf/nuwa-skill) (distilled
+  real-person "perspective" personas: Jobs, Munger, Naval, Karpathy, …) — is
+  cloned into a separate `perspectives-index.json`.
+  - **Step 1.2**: after casting the 3 roles, they *vote* to elect one persona as
+    the CTO reviewer (`roles.json.cto_reviewer`).
+  - **Step 4.2**: a new `harness-cto` agent (opus) embodies that persona and
+    co-reviews the output from a decision-maker lens — its own `score`,
+    `verdict` (ship/iterate/kill), and a `dealbreaker` — then blends into the
+    round's `total`: `main×(1−w) + cto×w` (w = `cto_weight`, default 0.3),
+    capped at 89 when it flags a `block`ing dealbreaker.
+  - Directly tackles the long-standing **self-referential-judge** weakness: the
+    generator and main evaluator are the same model family; the CTO is a
+    different, opinionated perspective. Toggle via `context.json.cto_review`;
+    auto-disabled when the perspective pool is absent.
+  - `iteration-decision.js` is **unchanged** — it still reads the single blended
+    `total`, so the loop math didn't have to move.
+
+### Changed
+- `setup.js` now also clones nuwa-skill (non-fatal) and builds
+  `perspectives-index.json` on install/update.
+
+[1.4.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.4.0
+
 ## [1.3.0] — 2026-06-02
 
 ### Added

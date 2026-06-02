@@ -54,6 +54,7 @@
 - 📇 **角色索引**：選角讀預建索引，不再每次掃全部角色檔
 - 🔢 **可選 best-of-N**：`candidates_per_round` 開啟同輪平行生成多版本擇優
 - 🌱 **自動對標 seed（v1.3）**：Step 0 先自動上網找 5 個該任務最頂尖/得獎的實際範例當參考種子（你還能再補/換），餵給規劃、生成、評估當天花板基準
+- 🧑‍⚖️ **雙評審 / CTO 共評（v1.4）**：選角後三角色投票，從 nuwa-skill 蒸餾人物（Jobs / Munger / Naval / Karpathy…）選一名「CTO 評審」,評分時用決策者視角共評、混入總分 —— 化解「同模型自評」的盲點
 
 ---
 
@@ -218,7 +219,8 @@ harness-marketplace/
         │   ├── harness-selector.md  ← 動態掃描選角（sonnet）
         │   ├── harness-planner.md   ← 規劃 + 自動生成維度（sonnet）
         │   ├── harness-generator.md ← 以角色身份生成（opus）
-        │   └── harness-evaluator.md ← 嚴格評分（opus）
+        │   ├── harness-evaluator.md ← 嚴格評分（opus）
+        │   └── harness-cto.md       ← CTO 共評，附身 nuwa 人物決策者視角（opus, v1.4）
         ├── skills/
         │   └── harness/
         │       └── SKILL.md      ← 主流程（自動觸發）
