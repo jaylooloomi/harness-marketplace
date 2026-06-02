@@ -55,36 +55,42 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 
 這一步在 selector 之前執行，奠定「品味校準」與「反 AI 慣性」基礎。
 
-### 0a. 取得對標參考
-詢問使用者：
-> 「這類任務你心中的『天花板等級』範例是什麼？給我 1-3 個就好，可以是：
-> - 網站 URL
-> - 描述（例如『The Met 那種感覺』）
-> - 圖片參考（如果在這個 session 已經貼過）
->
-> 不知道沒關係，可以說『隨便』，我會用內建 fallback。」
+### 0a. 對標參考（seed）— 先自動上網找，再讓使用者補
 
-把回應寫入 `.harness/context.json`：
-```json
-{
-  "task": "<original task>",
-  "references": [
-    { "type": "url|description|image", "value": "...", "user_note": "..." }
-  ],
-  "references_source": "user_provided | system_fallback",
-  "forbidden_patterns": [...],
-  "frame_shift_used": [],
-  "frame_shift_active": null,
-  "iteration_scores": [],
-  "candidates_per_round": 1,
-  "threshold": 90,
-  "max_iterations": 10
-}
-```
+**不要一開始就只問使用者。先自動找 5 個『天花板等級』範例當 seed 餵入：**
 
-**⚠️ 圖片參考的處理（v1.2 修正）**：evaluator 是子代理，**看不到主 session 貼過的圖片**。所以若使用者的參考是貼過的圖片，**你（主流程）必須當場用文字把那張圖描述清楚**（風格、配色、版型、質感、氛圍），存成一筆 `{ "type": "image", "value": "<你的文字描述>", "user_note": "來自使用者貼的圖" }`。這樣 evaluator 才有可用的對標基準。不要只存 "(用戶貼的圖)" 這種無法被下游使用的值。
+1. 用 **WebSearch** 針對本任務搜尋業界最熱門 / 得獎 / 頂尖的實際範例。
+   - 視覺/網頁類 → 優先 Awwwards、SiteInspire、Godly、Land-book、Dribbble 等 showcase；關鍵字如 `award winning <主題> website`、`best <主題> landing page`。
+   - 文案類 → 該平台的爆款 / 頂尖品牌文案；簡報類 → 頂尖 deck 範例。
+2. 從結果挑 **5 個**品質最高、且**彼此有差異**（別 5 個都同一招）的範例。
+3. 每個用 **WebFetch** 抓重點，寫一句「它好在哪 / 風格 / 版型或結構特徵」（fetch 失敗就用搜尋摘要寫）。
+4. 寫進 `.harness/context.json`（`references_source: "auto_seed"`）：
+   ```json
+   {
+     "task": "<original task>",
+     "references": [
+       { "type": "url", "value": "https://…", "description": "為何頂尖：深色沉浸＋scroll 敘事＋襯線大標", "source": "auto_seed" }
+       // …共 5 個
+     ],
+     "references_source": "auto_seed",
+     "forbidden_patterns": [...],
+     "frame_shift_used": [],
+     "frame_shift_active": null,
+     "iteration_scores": [],
+     "candidates_per_round": 1,
+     "threshold": 90,
+     "max_iterations": 10
+   }
+   ```
+5. 把找到的 5 個簡短列給使用者，並問：
+   > 「我先上網找了 5 個這類任務的天花板級範例（列出 + 一句話特色）。要不要**換掉/刪掉**某幾個、或**貼你自己的**參考？直接說『就用這些』也可以。」
+   使用者補充的存成額外 reference（`source: "user_provided"`）；要換就替換。
 
-若使用者跳過 → `references_source: "system_fallback"` + 系統載入該任務類型的內建範例描述。
+**關鍵**：這 5 個 seed 同時餵給 planner（設計『對標 references』維度）、generator（朝天花板走）、evaluator（評分基準）。**每筆 reference 都要附 `description`** —— 因為下游 agent（尤其 evaluator）不上網，只讀 context.json 裡你抓好的描述。
+
+**使用者貼圖片時**：evaluator 看不到主 session 的圖，所以你要當場把圖用文字描述清楚，存成 `{ "type": "image", "value": "<文字描述>", "description": "<同上>", "source": "user_provided" }`。
+
+**fallback**：環境沒有 WebSearch / 無網路 / 搜不到 → `references_source: "system_fallback"`，改用內建該類型頂尖範例的文字描述，並告知使用者可手動貼參考。
 
 ### 0b. 載入 anti-pattern 禁區清單
 讀取 `${CLAUDE_PLUGIN_ROOT}/data/global-forbidden.json` 全部 patterns，寫進 `context.json.forbidden_patterns`。

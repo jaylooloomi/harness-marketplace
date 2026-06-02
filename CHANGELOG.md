@@ -4,6 +4,32 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-06-02
+
+### Added
+- **Auto-seeded references (Step 0).** Before asking the user, the harness now
+  **WebSearches for ~5 of the most popular / award-winning real-world examples**
+  for the task (Awwwards / SiteInspire / Dribbble … for visual work), fetches a
+  one-line "why it's top-tier" for each, and stores them as `references` (with
+  `description`, `source: "auto_seed"`) in `context.json`. These seeds anchor the
+  planner's benchmark dimension, the generator's target, and the evaluator's
+  scoring. The user can still add or replace them; falls back to the built-in
+  description set when there is no web access.
+
+### Changed
+- The evaluator now benchmarks against the `description` captured on each
+  reference at Step 0 (it has no WebFetch tool of its own) instead of trying to
+  fetch URLs itself — fixing a path that could never have run.
+
+### Fixed
+- **First-run `npm install puppeteer-core` robustness.** npm is now invoked via
+  its JS entry next to the running `node` (PATH-independent), and a failed
+  install self-heals with `npm cache clean --force` + one retry before falling
+  back to the chrome CLI. Resolves real install failures observed on Windows
+  (npm-not-on-PATH in the exec sandbox, and a corrupt-cache ENOENT).
+
+[1.3.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.3.0
+
 ## [1.2.0] — 2026-06-01
 
 ### Why this release

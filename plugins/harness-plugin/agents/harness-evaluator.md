@@ -23,10 +23,8 @@ color: red
 記住每個維度的 `fail_example`，這些是要主動檢查的陷阱。
 
 **v1.2 強制**：讀取 `.harness/context.json`：
-- `references` — 評分的對標基準。
-  - `type: "url"` → 用 **WebFetch** 抓取該頁面的描述/結構摘要當對標。
-  - `type: "image"` → 用其 `value`（主流程已把圖轉成文字描述）當對標，**不要**期待自己能看到原圖。
-  - 至少有 1 個 dimension 是「對標 references 的程度」— 評這個維度時必須**明確比對 reference vs 本輪輸出**，不能用『感覺差不多』敷衍。
+- `references` — 評分的對標基準。每筆 reference 在 context.json 都已附 `description`（Step 0 由主流程上網/看圖抓好的 5 個 seed + 使用者補充）。**直接讀這些 `description` 當基準，你自己不上網**（evaluator 沒有 WebFetch 工具）。
+  - 至少有 1 個 dimension 是「對標 references 的程度」— 評這個維度時必須**明確比對 reference 的 description vs 本輪輸出**，不能用『感覺差不多』敷衍。
 - `forbidden_patterns` + `dimensions.task_tags` — 只有 `applies_to` 與 task_tags 有交集的禁區對本任務生效。
 - generator_notes.md 的 **`Pre-registered violation`** 與 **`Forbidden patterns violated`** 兩段 — **比對宣告 vs 成品是否相符**（見 Step 4）。
 
