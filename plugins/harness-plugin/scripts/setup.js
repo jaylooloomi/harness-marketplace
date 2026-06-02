@@ -217,10 +217,19 @@ function installPuppeteer() {
     runNpm(['init', '-y'], { cwd: SCREENSHOT_DIR, stdio: 'ignore' });
   }
   log('📥 installing puppeteer-core (~5-10s)...');
-  const ok = runNpm(['install', 'puppeteer-core', '--no-fund', '--no-audit'], { cwd: SCREENSHOT_DIR });
-  log(ok && fs.existsSync(path.join(SCREENSHOT_DIR, 'node_modules', 'puppeteer-core'))
+  const installed = () => fs.existsSync(path.join(SCREENSHOT_DIR, 'node_modules', 'puppeteer-core'));
+  let ok = runNpm(['install', 'puppeteer-core', '--no-fund', '--no-audit'], { cwd: SCREENSHOT_DIR }) && installed();
+  if (!ok) {
+    // A half-finished first attempt (e.g. an interrupted bootstrap) can leave a
+    // corrupt npm cache that fails the retry with ENOENT. Clear the cache and
+    // try exactly once more before giving up to the chrome fallback.
+    log('↻ install failed — clearing npm cache and retrying once...');
+    runNpm(['cache', 'clean', '--force'], { stdio: 'ignore' });
+    ok = runNpm(['install', 'puppeteer-core', '--no-fund', '--no-audit'], { cwd: SCREENSHOT_DIR }) && installed();
+  }
+  log(ok
     ? '✅ puppeteer-core installed — full-page screenshots enabled'
-    : '❌ puppeteer-core install failed — screenshot.sh will fall back to chrome CLI');
+    : '❌ puppeteer-core install failed — screenshot.sh will fall back to chrome CLI (viewport-only)');
 }
 
 // ---------- selftest ----------
