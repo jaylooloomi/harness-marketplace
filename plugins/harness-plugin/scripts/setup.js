@@ -21,11 +21,20 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { spawnSync } = require('child_process');
 
 const ROLE_REPO = 'https://github.com/jnMetaCode/agency-agents-zh';
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
-const DATA_DIR = process.env.CLAUDE_PLUGIN_DATA || path.join(PLUGIN_ROOT, '.plugin-data');
+
+function argVal(flag) { const i = process.argv.indexOf(flag); return i >= 0 ? process.argv[i + 1] : undefined; }
+
+// Persistent, WRITABLE data dir. Prefer --data-dir / $CLAUDE_PLUGIN_DATA (Claude Code
+// resolves the latter to ~/.claude/plugins/data/<id>/); otherwise fall back to the same
+// documented canonical location. NEVER write under PLUGIN_ROOT — the plugin install dir
+// is read-only/ephemeral.
+const DATA_DIR = argVal('--data-dir') || process.env.CLAUDE_PLUGIN_DATA
+  || path.join(os.homedir(), '.claude', 'plugins', 'data', 'harness-plugin');
 const AGENTS_DIR = path.join(DATA_DIR, 'agency-agents-zh');
 const SCREENSHOT_DIR = path.join(DATA_DIR, 'screenshot-tool');
 const INDEX_OUT = path.join(DATA_DIR, 'roles-index.json');
@@ -253,16 +262,16 @@ function main() {
   // install (default)
   log('🔍 checking agency-agents-zh role library...');
   if (fs.existsSync(path.join(AGENTS_DIR, '.git'))) {
-    log('✅ role library already present (run "/harness:update" to refresh)');
+    log('✅ role library already present (run "/harness-plugin:harness-update" to refresh)');
   } else if (!cloneRoles()) {
-    log('❌ clone failed — check network, then run /harness:update');
+    log('❌ clone failed — check network, then run /harness-plugin:harness-update');
     process.exitCode = 1;
   }
   const n = buildIndex();
   installPuppeteer();
   log('');
   log(n > 0 ? `✅ harness-plugin ready — ${n} roles indexed`
-            : `⚠️  installed, but 0 roles indexed — check network and run /harness:update`);
+            : `⚠️  installed, but 0 roles indexed — check network and run /harness-plugin:harness-update`);
 }
 
 main();

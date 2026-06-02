@@ -74,6 +74,19 @@ code, gates the machinery by task type, and makes install/update cross-platform.
 - **Role count is no longer hardcoded inconsistently** — the README claimed
   both "80+" and "242"; `setup.js` now reports the live count and the docs use
   a non-asserting "200+".
+- **The plugin can now actually install-and-run out of the box** (it could not
+  before, on any platform). The `PostInstall` hook was removed — plugin
+  lifecycle hooks are not a supported Claude Code event, so it never fired and
+  the role library was never downloaded. Setup now runs **lazily on first use**:
+  the skill / `/harness-plugin:harness` command runs
+  `setup.js install --data-dir "${CLAUDE_PLUGIN_DATA}"` when the role index is
+  missing. Data persists in the documented writable `${CLAUDE_PLUGIN_DATA}`
+  (`~/.claude/plugins/data/...`); `setup.js` gained a `--data-dir` flag.
+- **Corrected the documented commands** to the plugin-namespaced
+  `/harness-plugin:harness` and `/harness-plugin:harness-update` — the old docs
+  said `/harness:run` / `/harness:update`, which do not exist as commands.
+- **Added `name: harness`** to the skill frontmatter (required for the skill to
+  load and auto-trigger).
 
 ### Removed
 - `scripts/install-agents.sh` and `scripts/update-agents.sh` — superseded by

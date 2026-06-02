@@ -1,4 +1,5 @@
 ---
+name: harness
 description: >
   使用在使用者明確要求「生成」、「設計」、「重新設計」、「製作」、
   「撰寫」、「建立」某個完整輸出物時。
@@ -15,10 +16,14 @@ description: >
 
 ## 前置確認
 
-確認角色庫與索引存在：
-- 角色庫：`${CLAUDE_PLUGIN_DATA}/agency-agents-zh/`
-- 角色索引：`${CLAUDE_PLUGIN_DATA}/roles-index.json`（selector 讀這個，不再每次掃全部檔案）
-- 若任一不存在：提示使用者執行 `/harness:update` 後再試（會重新 clone 並重建索引）
+確認角色索引存在：`${CLAUDE_PLUGIN_DATA}/roles-index.json`（selector 讀這個，不再每次掃全部檔案）。
+
+**若不存在 → 首次使用，自動安裝（v1.2；取代不被支援的 PostInstall hook）**：用 Bash 執行一次
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGIN_DATA}"
+```
+這會 clone agency-agents-zh + 建 `roles-index.json` + 裝 puppeteer-core（首次約 10–30 秒，需要網路）。先告訴使用者「第一次使用,正在安裝角色庫,約 10–30 秒」,完成後再繼續流程。
+- 若安裝失敗（多半是沒網路）→ 提示使用者檢查網路後手動執行 `/harness-plugin:harness-update`,再重試。
 
 建立本次任務的工作目錄，並**寫入 `.harness/.gitignore`，內容為單獨一行 `*`**，避免在使用者自己的 git repo 裡誤把 `.harness/`（含截圖）commit 進去：
 

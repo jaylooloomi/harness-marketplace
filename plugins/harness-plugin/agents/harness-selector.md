@@ -24,7 +24,7 @@ color: blue
 
 若索引不存在或為空：輸出
 ```
-❌ 角色索引未建立，請執行 /harness:update 後再試
+❌ 角色索引未建立，請執行 /harness-plugin:harness-update 後再試
 ```
 
 ### 2. 根據任務選角

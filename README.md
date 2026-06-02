@@ -74,7 +74,8 @@
 /plugin install harness-plugin@harness-marketplace
 ```
 
-安裝時會自動下載 agency-agents-zh 角色庫（需要網路，約 10 秒）。
+> 💡 **第一次使用**（描述任務或執行 `/harness-plugin:harness`）時，系統會自動下載 agency-agents-zh 角色庫並建立索引（需要網路，約 10–30 秒），之後就直接用。
+> 想先手動觸發下載也可以：安裝後執行一次 `/harness-plugin:harness-update`。
 
 ### 步驟三：確認安裝成功
 
@@ -113,7 +114,7 @@
 如果自動觸發沒有作用，可以明確使用指令：
 
 ```
-/harness:run 幫我重新設計羅浮宮美術館網站
+/harness-plugin:harness 幫我重新設計羅浮宮美術館網站
 ```
 
 ### 更新角色庫
@@ -121,7 +122,7 @@
 當 agency-agents-zh 有新角色時，執行：
 
 ```
-/harness:update
+/harness-plugin:harness-update
 ```
 
 ---
@@ -176,10 +177,10 @@
 ## 常見問題
 
 **Q：角色庫下載失敗怎麼辦？**
-A：確認網路連線後執行 `/harness:update`
+A：確認網路連線後執行 `/harness-plugin:harness-update`
 
 **Q：自動觸發一直沒有作用？**
-A：改用 `/harness:run <任務描述>` 明確觸發
+A：改用 `/harness-plugin:harness <任務描述>` 明確觸發
 
 **Q：分數一直在 90 以下怎麼辦？**
 A：系統最多跑 10 輪，結束後會把所有版本列出，你可以挑最接近的繼續手動調整
@@ -217,8 +218,8 @@ harness-marketplace/
         │   └── harness/
         │       └── SKILL.md      ← 主流程（自動觸發）
         └── commands/
-            ├── harness.md        ← /harness:run 明確觸發
-            └── harness-update.md ← /harness:update 更新角色庫
+            ├── harness.md        ← /harness-plugin:harness 明確觸發
+            └── harness-update.md ← /harness-plugin:harness-update 更新角色庫
 ```
 
 ---
