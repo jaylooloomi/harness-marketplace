@@ -4,6 +4,18 @@ All notable changes to harness-plugin are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-06-02
+
+### Added
+- **Auto-open the result.** After Step 6 the harness opens the top-scoring
+  version's artifact with the OS default app via the new cross-platform
+  `scripts/open.js` (index.html → browser, .docx / .pdf → Office, images →
+  viewer, …). Unsupported file types are skipped and any launch failure is
+  non-fatal (so headless/CI runs are unaffected). Toggle with
+  `context.json.auto_open` (default true).
+
+[1.5.0]: https://github.com/jaylooloomi/harness-marketplace/releases/tag/v1.5.0
+
 ## [1.4.0] — 2026-06-02
 
 ### Added

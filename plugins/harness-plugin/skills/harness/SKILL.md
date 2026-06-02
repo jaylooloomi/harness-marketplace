@@ -81,7 +81,8 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
      "threshold": 90,
      "max_iterations": 10,
      "cto_review": true,
-     "cto_weight": 0.3
+     "cto_weight": 0.3,
+     "auto_open": true
    }
    ```
 5. 把找到的 5 個簡短列給使用者，並問：
@@ -199,6 +200,9 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/iteration-decision.js" .harness
 - 顯示每個版本的總分（v1.4：含 main 分 vs CTO 分、CTO verdict）、各維度分數、是否觸發 pivot / 用了哪個 frame-shift
 - 標記分數最高的版本
 - 額外標記「最有突破性」的版本（即使分數不最高 — 用了 frame-shift 的版本）
+- **自動打開（v1.5）**：若 `context.json.auto_open` 不為 false，用
+  `node "${CLAUDE_PLUGIN_ROOT}/scripts/open.js" "<最高分版本的主輸出檔，例如 .harness/output/iteration_N/index.html 或 content.md>"`
+  以系統預設程式打開那個版本給使用者看（html→瀏覽器、docx/pdf→Office…；無對應檢視器的類型會自動略過，開啟失敗也不影響流程）。可一併打開「最有突破性」的版本。
 - 顯示 `context.json.references` 提醒對標來源
 - 詢問使用者想要哪個版本，或是否繼續迭代
 
