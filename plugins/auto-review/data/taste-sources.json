@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "description": "Default 'taste sources' for Step 0 auto-seed: the harness pulls its 5 ceiling references FROM these top sources (scoped WebSearch) instead of a generic award search — so the benchmark is a curated, opinionated ceiling, not the average. These set HOW HIGH to aim (quality), NOT one fixed look — the list is deliberately diverse, and per-task variation still comes from the constraint deck + the CTO novelty gate.",
+  "priority": "Seeder resolves taste sources in this order: context.json.taste_sources (this task) > ${CLAUDE_PLUGIN_DATA}/taste-sources.json (the user's saved personal list) > this built-in default.",
+  "usage": "For each source, WebSearch its `search` template with <主題> replaced by the task topic; gather candidates across sources; pick 5 that are highest-quality AND stylistically different from each other. Sources that are video/IG accounts (can't screenshot): use their portfolio site or write-ups instead, or treat the name as a style anchor.",
+  "sources": [
+    { "name": "Awwwards — Site of the Day", "type": "showcase", "search": "awwwards site of the day <主題>" },
+    { "name": "Godly", "type": "showcase", "search": "godly.website <主題>" },
+    { "name": "SiteInspire", "type": "showcase", "search": "siteinspire <主題> website" },
+    { "name": "Land-book", "type": "showcase", "search": "land-book <主題> landing page" },
+    { "name": "One Page Love", "type": "showcase", "search": "onepagelove <主題>" },
+    { "name": "Minimal.Gallery", "type": "showcase", "search": "minimal gallery <主題> website" },
+    { "name": "Active Theory", "type": "studio", "search": "Active Theory <主題> case study site" },
+    { "name": "Locomotive", "type": "studio", "search": "Locomotive agency <主題> website" },
+    { "name": "Obys Agency", "type": "studio", "search": "Obys agency <主題>" },
+    { "name": "Unseen Studio", "type": "studio", "search": "Unseen Studio <主題> website" },
+    { "name": "jerrythewebdev", "type": "creator", "search": "jerrythewebdev <主題> website unique" }
+  ]
+}

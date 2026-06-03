@@ -4,6 +4,22 @@ All notable changes to auto-review are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] — 2026-06-03
+
+### Changed
+- **Taste-sourced benchmarking.** Step 0 auto-seed now pulls its 5 ceiling
+  references FROM a curated list of top "taste sources" (Awwwards SOTD, Godly,
+  SiteInspire, Active Theory, jerrythewebdev, …), scoped via WebSearch, instead
+  of a generic award search — so the benchmark is an opinionated ceiling, not the
+  average. New `data/taste-sources.json` (built-in default); override per task
+  via `context.json.taste_sources`, or tell the harness "always benchmark
+  against X" and it saves X to a persistent personal list at
+  `${CLAUDE_PLUGIN_DATA}/taste-sources.json` (remembered across tasks).
+- Taste sources set **how high to aim**; per-task **variety** still comes from
+  the v1.7 constraint deck + CTO novelty gate — the two are complementary.
+
+[1.8.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.8.0
+
 ## [1.7.0] — 2026-06-03
 
 ### Added

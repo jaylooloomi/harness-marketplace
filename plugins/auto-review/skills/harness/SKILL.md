@@ -59,9 +59,10 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 
 **不要一開始就只問使用者。先自動找 5 個『天花板等級』範例當 seed 餵入：**
 
-1. 用 **WebSearch** 針對本任務搜尋業界最熱門 / 得獎 / 頂尖的實際範例。
-   - 視覺/網頁類 → 優先 Awwwards、SiteInspire、Godly、Land-book、Dribbble 等 showcase；關鍵字如 `award winning <主題> website`、`best <主題> landing page`。
-   - 文案類 → 該平台的爆款 / 頂尖品牌文案；簡報類 → 頂尖 deck 範例。
+1. **從「品味來源」撈範例（v1.8，不是泛搜）**：
+   - 先決定來源，優先序：`context.json.taste_sources`（這次指定的）> `${CLAUDE_PLUGIN_DATA}/taste-sources.json`（使用者存過的個人清單）> 內建 `${CLAUDE_PLUGIN_ROOT}/data/taste-sources.json`。
+   - 用 **WebSearch** 把每個來源的 `search` 模板（`<主題>` 換成本任務主題）拿去搜，跨來源蒐集候選。**對標的是「你信任的頂尖來源」，不是平均得獎站。**
+   - 影片 / IG 帳號類來源抓不到畫面 → 改用其作品集站 / 報導描述，或把名字當風格錨點；文案 / 簡報類任務用對應領域的頂尖來源。
 2. 從結果挑 **5 個**品質最高、且**彼此有差異**（別 5 個都同一招）的範例。
 3. 每個用 **WebFetch** 抓重點，寫一句「它好在哪 / 風格 / 版型或結構特徵」（fetch 失敗就用搜尋摘要寫）。
 4. 寫進 `.harness/context.json`（`references_source: "auto_seed"`）：
@@ -73,6 +74,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
        // …共 5 個
      ],
      "references_source": "auto_seed",
+     "taste_sources": [],
      "forbidden_patterns": [...],
      "frame_shift_used": [],
      "frame_shift_active": null,
@@ -88,9 +90,10 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
      "avoid_house_style": []
    }
    ```
-5. 把找到的 5 個簡短列給使用者，並問：
-   > 「我先上網找了 5 個這類任務的天花板級範例（列出 + 一句話特色）。要不要**換掉/刪掉**某幾個、或**貼你自己的**參考？直接說『就用這些』也可以。」
-   使用者補充的存成額外 reference（`source: "user_provided"`）；要換就替換。
+5. 把找到的 5 個簡短列給使用者（標出**各來自哪個品味來源**），並問：
+   > 「我從你的品味來源找了 5 個天花板級範例（列出 + 一句話特色 + 來源）。要不要**換掉/刪掉**某幾個、**貼你自己的**參考、或**指定以後都對標誰**（某設計師 / IG 帳號 / 作品集 / showcase）？直接說『就用這些』也可以。」
+   - 單次補充的參考 → 存成額外 reference（`source: "user_provided"`）。
+   - 使用者說「**以後都對標 X**」→ 把 X 寫進 `${CLAUDE_PLUGIN_DATA}/taste-sources.json`（讀現有 `{ "sources": [...] }` 或新建，append `{ name, type, search }`），**跨任務記住**。
 
 **關鍵**：這 5 個 seed 同時餵給 planner（設計『對標 references』維度）、generator（朝天花板走）、evaluator（評分基準）。**每筆 reference 都要附 `description`** —— 因為下游 agent（尤其 evaluator）不上網，只讀 context.json 裡你抓好的描述。
 
