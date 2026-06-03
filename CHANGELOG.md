@@ -4,6 +4,28 @@ All notable changes to auto-review are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] — 2026-06-03
+
+### Added
+- **Motion mode (T1: Lenis + GSAP).** For web/visual tasks the generator now
+  produces a single-file **smooth-scroll + scroll-driven motion** page — the
+  "Awwwards-feel" of premium portfolios — instead of a static one. New
+  `data/motion-kit.md` codifies the scaffold (CDN GSAP/ScrollTrigger/Lenis,
+  canonical integration, reveal/parallax/pin/magnetic/cursor patterns) under
+  five hard rules: progressive enhancement, honor `prefers-reduced-motion`,
+  expose `window.lenis`, single-file + graceful CDN degradation, purposeful
+  easing. Toggle with `context.json.motion` (default true).
+- **Motion is judged honestly.** Stills can't convey motion, so `screenshot.js`
+  now emulates `prefers-reduced-motion` (capturing the final composition the
+  progressive-enhancement contract guarantees) and drives `window.lenis` to
+  reach scroll-triggered end-states; the evaluator adds a code-level
+  `motion_review` (real smooth scroll? scroll-triggered? custom easing? legible
+  with JS stripped?) and the CTO folds motion into `design_pov`.
+- Verified end-to-end: a motion page with a deep scroll-revealed section was
+  captured fully (all three bands legible) under reduced-motion emulation.
+
+[1.9.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.9.0
+
 ## [1.8.0] — 2026-06-03
 
 ### Changed

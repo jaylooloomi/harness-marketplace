@@ -38,7 +38,7 @@ color: magenta
 給出:
 - `score`：0–100 的整體判斷（你自己的尺,不是 4 維度加權）。
 - `verdict`：`ship` / `iterate` / `kill`。
-- `design_pov`：`distinctive`（有獨特主張）/ `competent-generic`（能看但安全）/ `derivative`（似曾相識、撞家族臉）。
+- `design_pov`：`distinctive`（有獨特主張）/ `competent-generic`（能看但安全）/ `derivative`（似曾相識、撞家族臉）。**motion mode**：把動態也算進來——死板/亂閃的動態、或「該動卻交出靜態頁」往 `competent-generic` 靠；流暢且有目的的動態是 `distinctive` 的一部分（動態細節以 evaluator 的 `motion_review` 為準）。
 - **新穎度 gate（v1.7，lever ③）**：若 `design_pov` 是 `competent-generic`/`derivative`、或明顯撞 `avoid_house_style`、或沒吃約束牌 → **`block: true`**，`dealbreaker` 寫「缺乏獨特 POV / 撞家族臉」，並在 `art_direction_shift` 給一個**具體方向轉換**（不是「更大膽」，而是「捨棄 scroll，改用實體唱片行貨架陳列」這種有抓手的方向，會餵給下一輪）。`distinctive` 才不因新穎度而擋。**品質地板** = 既有分數（block 只把 total 封頂 89,不會單獨讓爛東西過關）。
 - `design_fingerprint`：幾個短標籤描述這次長相（存進跨任務檔案庫）：`{ palette, typography, layout, mood, metaphor }`。
 - `block`：是否有「不解決就不該 ship」的硬傷（含上面的新穎度 gate）。

@@ -65,9 +65,18 @@ color: yellow
 - 視覺質感是第一優先，不要把心力花在 code 層的奇技淫巧上
 - 一定要做 RWD，mobile viewport 也會被截圖
 - 字體、配色、留白、Hero 衝擊力 — 這些「看得到」的東西最重要
-- 自帶 `<style>` 內嵌完整 CSS，**不要依賴外部 CDN 字體之外的任何網路資源**（headless 環境網路可能受限）
+- 自帶 `<style>` 內嵌完整 CSS。**靜態模式**下除 CDN 字體外不要依賴任何網路資源（headless 環境網路可能受限）；**動態模式**僅允許 motion-kit 指定的 GSAP / ScrollTrigger / Lenis CDN，且必守 R4「CDN 被擋要能降級」
 - **字體與截圖時序（v1.2 重要）**：截圖環境網路可能受限，generator 無從得知。**預設優先用系統字體堆疊**（如襯線 `Georgia, "Noto Serif TC", serif`，或 monospace）來達成「換掉預設無襯線」的禁區要求 —— 最穩、零網路依賴。**若**真要用 CDN webfont，**務必**：(a) `font-family` 一定帶系統 fallback（例如 `"Playfair Display", Georgia, serif`），(b) 加 `font-display: swap`；否則 CDN 慢時會卡到截圖逾時或截到空畫面。
 - 圖片用 placeholder（純 CSS / SVG / unsplash 連結都行），但要確認 render 出來不會破版
+
+**🎬 動態模式（motion mode，v1.9 — 視覺/網頁類預設開啟）**：
+若 `context.json.motion` 為 true 且本任務屬視覺/網頁類，**依 `${CLAUDE_PLUGIN_ROOT}/data/motion-kit.md` 產出單檔 Lenis + GSAP scaffold**，做出 jerrythewebdev / Awwwards 等級的「動起來」感（平滑捲動＋捲動驅動進場＋客製緩動）。**必守 motion-kit 五條鐵律**，尤其：
+- **R1 漸進增強**：完整內容與最終版面在純 HTML/CSS（無 JS）下就看得到。用 `gsap.from`（靜止態＝可見），**絕不**用 CSS 預先隱藏再靠 JS 揭露；preloader / 遮罩一律由 JS 注入再移除。
+- **R2 尊重 `prefers-reduced-motion`**：偏好減量時直接呈現最終態（截圖器正是用這個抓圖，這也是為何 R1 必須成立）。
+- **R3** 暴露 `window.lenis`；**R4** 只有 GSAP/ScrollTrigger/Lenis 走 CDN、其餘內嵌、CDN 被擋要降級；**R5** 客製緩動、動態要有目的、最多一個 WebGL 時刻。
+- 動態是「感覺」、截圖看不出 → evaluator 會**讀你的 code** 評動態層。**別 import 了 GSAP 卻幾乎不動，也別讓頁面沒 JS 就壞掉**——那比誠實的靜態頁分數更低。
+- 約束牌（`aesthetic_constraints`）仍主導風格；motion 只是讓它「動起來」，不是蓋過它。
+若 `motion: false` 或非視覺任務 → 維持原本的靜態單檔。
 
 ### 5. 儲存輸出
 
@@ -102,6 +111,11 @@ color: yellow
 
 ## 對標參考
 [簡述本輪如何朝 context.json.references 對標]
+
+## 動態層 (motion mode；視覺類且 context.json.motion=true 時必填)
+[用了哪些 motion-kit 手法：平滑捲動 / 捲動進場 / 視差 / 磁吸 / 自訂游標…；緩動曲線；是否含 WebGL]
+[漸進增強如何保證：拿掉 JS 是否仍完整？尊重 prefers-reduced-motion？已暴露 window.lenis？]
+[或：本任務非視覺類 / motion=false → 不適用]
 
 ## 關鍵設計決策
 [說明本輪做了哪些刻意的創意選擇]

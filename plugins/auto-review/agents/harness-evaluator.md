@@ -82,6 +82,17 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
 
 直接 Read 對應檔案（`content.md` / `plan.md` / `main.*`），全文閱讀後評分。
 
+#### 3c. 動態層（motion mode，v1.9）— 截圖看不出，改讀 code
+
+若本任務屬視覺類且 `context.json.motion` 為 true（generator 應已產出 Lenis+GSAP 單檔），**截圖只反映靜止/最終態，看不出動態品質**。請額外用 Read 開該輪 `index.html`，搭配 generator_notes.md 的「動態層」段檢查：
+- **真的有動嗎**：是否用了平滑捲動（Lenis）＋捲動觸發進場（ScrollTrigger）？還是 import 了 GSAP 卻幾乎沒動畫？（後者形同詐欺，扣分）
+- **緩動有沒有用心**：客製 ease（power3 / expo / cubic-bezier）還是預設？
+- **動態有目的嗎**：服務層級與節奏，還是亂閃的裝飾？
+- **漸進增強（R1，硬性）**：拿掉 JS 內容是否仍完整？有沒有用 CSS 預先隱藏再靠 JS 揭露（違反 → 沒 JS 就空白，重扣）？有沒有尊重 `prefers-reduced-motion`、暴露 `window.lenis`？
+- 把判斷併入相關維度 feedback，並在 score.json 填 `"motion_review"`（見 Step 6）。
+
+> 注意：**誠實的靜態頁 > 假裝會動或沒 JS 就壞掉的頁**。動態做不好寧可不做。
+
 ### 4. 嚴格評分
 
 對每個維度打分（0-25 分），評分標準：
@@ -144,7 +155,8 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/screenshot.sh \
   "strategy": "refine 或 pivot",
   "strategy_reason": "說明為何選擇這個策略",
   "highlight": "本輪做得最好的地方（一句話肯定）",
-  "critical_issue": "本輪最嚴重的問題（一句話點出）"
+  "critical_issue": "本輪最嚴重的問題（一句話點出）",
+  "motion_review": "（motion mode 時）動態層評語：有無真平滑捲動/捲動觸發、緩動是否客製、漸進增強是否成立；非 motion 任務填 null"
 }
 ```
 

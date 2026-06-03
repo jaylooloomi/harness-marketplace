@@ -39,15 +39,25 @@ async function loadAndSettle(page, url) {
 async function triggerReveals(page) {
   await page.evaluate(async () => {
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    // Motion mode uses Lenis, which hijacks native scroll — window.scrollTo may
+    // not advance ScrollTrigger. Drive the exposed Lenis instance if present
+    // (motion-kit R3 requires window.lenis); otherwise fall back to native.
+    const scrollTo = (y) => {
+      if (window.lenis && typeof window.lenis.scrollTo === 'function') {
+        window.lenis.scrollTo(y, { immediate: true });
+      } else {
+        window.scrollTo(0, y);
+      }
+    };
     const step = Math.max(250, Math.floor(window.innerHeight * 0.5));
     // Re-read scrollHeight each iteration in case revealing content grows layout.
     for (let y = 0; y <= document.body.scrollHeight; y += step) {
-      window.scrollTo(0, y);
+      scrollTo(y);
       await sleep(140);
     }
-    window.scrollTo(0, document.body.scrollHeight);
+    scrollTo(document.body.scrollHeight);
     await sleep(250);
-    window.scrollTo(0, 0);
+    scrollTo(0);
     await sleep(200);
   });
 }
@@ -100,6 +110,15 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+
+    // Capture the FINAL composition, not a mid-animation frame: emulate reduced
+    // motion so motion-mode pages (which honor prefers-reduced-motion per
+    // motion-kit R2) settle to their resting/visible states. Stills can't convey
+    // motion anyway — motion quality is judged from code by the evaluator. This
+    // is harmless for static pages (they have nothing to reduce).
+    try {
+      await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    } catch (_) { /* older puppeteer-core: best-effort */ }
 
     // ---------- Desktop ----------
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });

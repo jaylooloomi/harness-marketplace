@@ -85,6 +85,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
      "cto_review": true,
      "cto_weight": 0.3,
      "auto_open": true,
+     "motion": true,
      "diversity": true,
      "aesthetic_constraints": [],
      "avoid_house_style": []
@@ -155,6 +156,8 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 **先決定本輪要產生幾個 candidate**：讀 `context.json.candidates_per_round`（預設 1）。
 - `= 1`：直接輸出到 `.harness/output/iteration_N/`（一般情況）
 - `> 1`（best-of-N，v1.2）：**平行呼叫 @harness-generator N 次**，各自輸出到 `.harness/output/iteration_N/candidate_1/ … candidate_N/`。每個 generator 只讀 context（唯讀），只寫自己的 candidate 目錄，**不寫 context.json**（避免平行覆寫），交由 Step 4 挑選勝出者。
+
+**動態模式（motion mode，v1.9）**：讀 `context.json.motion`（預設 true）。若為 true **且**任務屬視覺/網頁類（`dimensions.task_type` ∈ web/visual）→ generator 依 `${CLAUDE_PLUGIN_ROOT}/data/motion-kit.md` 產出**單檔 Lenis + GSAP scaffold**（平滑捲動＋捲動驅動進場＋客製緩動），並嚴守其「漸進增強」鐵律：沒 JS / CDN 被擋也看得到完整內容、尊重 `prefers-reduced-motion`、暴露 `window.lenis`（截圖器靠它驅動捲動）。非視覺任務或 `motion: false` → 維持靜態產出。動態是「感覺」、截圖看不出，故 Step 4 對動態層改以**讀 code** 評（見 evaluator）。
 
 每個 @harness-generator agent：
 - 讀取 `.harness/roles.json` 的生成器角色設定
