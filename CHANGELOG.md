@@ -4,6 +4,30 @@ All notable changes to auto-review are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] — 2026-06-03
+
+### Added
+- **Anti-homogeneity: randomized constraints + a cross-task novelty archive** —
+  so outputs stop converging on the same "tasteful default" across tasks.
+  - **Lever ① (entropy)** — `data/constraint-deck.json` + `scripts/diversity.js draw`:
+    at Step 0 the harness draws 2 orthogonal "oblique-strategy" cards (a design
+    movement + one of structure / mood / hard-constraint / era / medium-lens),
+    **biased away from recently-used ones**, into `context.aesthetic_constraints`;
+    the generator must honor them.
+  - **Lever ③ (Quality-Diversity, no-infra version)** — a persistent
+    `${CLAUDE_PLUGIN_DATA}/design-archive.json`. Each run records a "design
+    fingerprint" (palette / typography / layout / mood / metaphor). Step 0 loads
+    recent fingerprints as `avoid_house_style`; the generator steers away from
+    them; and the CTO runs a **novelty gate** — `design_pov`
+    (distinctive / competent-generic / derivative). If it's generic or too close
+    to the house style, the CTO `block`s (total capped at 89) and proposes an
+    `art_direction_shift` for the next round. **Quality floor = the existing
+    score**, so novelty never ships something that's merely different-but-bad.
+  - Toggle with `context.json.diversity` (default true); silently no-ops if it
+    can't run (offline / headless).
+
+[1.7.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.7.0
+
 ## [1.6.0] — 2026-06-02
 
 ### Changed

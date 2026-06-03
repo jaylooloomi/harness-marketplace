@@ -82,7 +82,10 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
      "max_iterations": 10,
      "cto_review": true,
      "cto_weight": 0.3,
-     "auto_open": true
+     "auto_open": true,
+     "diversity": true,
+     "aesthetic_constraints": [],
+     "avoid_house_style": []
    }
    ```
 5. 把找到的 5 個簡短列給使用者，並問：
@@ -100,7 +103,20 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/setup.js" install --data-dir "${CLAUDE_PLUGI
 
 **注意**：禁區是否對本任務生效，取決於 pattern 的 `applies_to` 是否與 planner 之後寫入的 `dimensions.task_tags` 有交集 —— 這個過濾在 Step 3（生成）時做，這裡先載入完整清單即可。
 
-**使用者可選自訂**：在 `.harness/context.json` 加 `additional_forbidden` 陣列、或 `disabled_forbidden` 排除某些 id；也可設 `candidates_per_round`（best-of-N）、`threshold`、`max_iterations`、`cto_review`（true/false 開關雙評審）、`cto_weight`（CTO 占比，預設 0.3）。
+**使用者可選自訂**：在 `.harness/context.json` 加 `additional_forbidden` 陣列、或 `disabled_forbidden` 排除某些 id；也可設 `candidates_per_round`（best-of-N）、`threshold`、`max_iterations`、`cto_review`、`cto_weight`、`diversity`（true/false 開關抗同質）。
+
+### 0c. 抗同質：隨機約束 + 避開家族臉（v1.7）
+
+若 `context.json.diversity` 不為 false：
+
+1. **抽約束牌（lever ①，注入熵）**：執行
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/diversity.js" draw --data-dir "${CLAUDE_PLUGIN_DATA}"
+   ```
+   把回傳的 `constraints`（2 張牌，已自動避開最近用過的）寫進 `context.json.aesthetic_constraints`。**generator 本輪必須遵守這 2 張牌**（例如「構成主義 ＋ 版面刻意不對稱」）。
+2. **載入家族臉（lever ③，記憶）**：讀 `${CLAUDE_PLUGIN_DATA}/design-archive.json`（不存在就當空陣列），取最近 5 筆的 `fingerprint`，寫進 `context.json.avoid_house_style`。**generator 要刻意避開、CTO 評分時把「太像這些」當新穎度扣分/封頂依據**。
+
+> `design-archive.json` 是**跨任務持久記憶**：每跑完一個任務（Step 6）就把這次的「設計指紋」寫回去，系統因此會逐漸避開自己的慣性長相，而不是每個任務都從同一個預設出發。沒有 WebSearch / 無法執行也沒關係 —— 抗同質停用、流程照跑。
 
 ---
 
@@ -203,6 +219,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/iteration-decision.js" .harness
 - **自動打開（v1.5）**：若 `context.json.auto_open` 不為 false，用
   `node "${CLAUDE_PLUGIN_ROOT}/scripts/open.js" "<最高分版本的主輸出檔，例如 .harness/output/iteration_N/index.html 或 content.md>"`
   以系統預設程式打開那個版本給使用者看（html→瀏覽器、docx/pdf→Office…；無對應檢視器的類型會自動略過，開啟失敗也不影響流程）。可一併打開「最有突破性」的版本。
+- **記錄設計指紋（v1.7，抗同質記憶／lever ③）**：若 `context.json.diversity` 不為 false，把**勝出版本**的設計指紋寫回跨任務檔案庫 `${CLAUDE_PLUGIN_DATA}/design-archive.json`：讀現有陣列（不存在就 `[]`），append 一筆 `{ "task": "<任務>", "constraints": <context.aesthetic_constraints>, "fingerprint": <勝出版本 score.json 的 cto.design_fingerprint> }`，寫回。下個任務就會避開這次的長相。
 - 顯示 `context.json.references` 提醒對標來源
 - 詢問使用者想要哪個版本，或是否繼續迭代
 

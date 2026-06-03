@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "description": "Anti-homogeneity lever ①: orthogonal creative provocations (an 'oblique strategies' deck). scripts/diversity.js draws 1 movement + 1 other-axis card per task, biased away from recently-used (per design-archive.json), and injects them at Step 0. The generator MUST honor the drawn cards. Purpose: push each task off the model's single 'tasteful default' attractor toward a DIFFERENT region each time.",
+  "axes": {
+    "movement": [
+      "Bauhaus 幾何理性、原色、無襯線",
+      "Memphis 80s 撞色、幾何亂塗、孟菲斯花紋",
+      "瑞士國際主義:嚴格網格、左對齊、Helvetica 留白",
+      "粗獷主義 Brutalism:裸露結構、單色、巨大字、刻意粗糙",
+      "Art Deco:對稱、金屬感、幾何裝飾、奢華",
+      "構成主義 Constructivism:對角動勢、紅黑、宣傳海報感",
+      "日式侘寂 Wabi-sabi:不完美、留白、自然材質、克制",
+      "Y2K:金屬漸層、泡泡、像素、未來懷舊",
+      "Vaporwave:粉紫、希臘雕像、日落網格、glitch",
+      "極繁主義 Maximalism:塞滿、層疊、強烈花紋、資訊爆炸",
+      "新醜風 Anti-design:刻意違和、系統字、未對齊、原始 HTML 感",
+      "復古印刷 Risograph:套色錯位、螢光墨、紙質顆粒"
+    ],
+    "structure": [
+      "單欄垂直長卷敘事(scroll = 走動)",
+      "雜誌跨頁:不對稱、文字繞圖、破格",
+      "卡片牌陣:點擊逐張揭開、有儀式感",
+      "地圖 / 網絡:節點與連線、非線性探索",
+      "時間軸:沿一條線推進",
+      "全螢幕分頁 scroll-snap:一屏一章",
+      "拼貼 collage:碎片重疊、手作貼紙感",
+      "終端機 / CLI:打字機節奏、等寬字、指令式互動",
+      "分割畫面 split-screen:左右對比並置",
+      "中央舞台:一個主角元素 + 環繞"
+    ],
+    "mood": [
+      "極簡克制、安靜",
+      "熱鬧繁複、興奮",
+      "懷舊膠片、溫暖",
+      "未來冷感、精密",
+      "手作溫度、不完美",
+      "儀式莊重、神聖",
+      "幽默俏皮、不正經",
+      "戲劇張力、強烈明暗"
+    ],
+    "hard_constraint": [
+      "只能單色階 + 黑白(不准用第二個色相)",
+      "不准用任何點陣圖片(只能 CSS / SVG / 字)",
+      "全站只能用 1 種字體(靠大小/粗細/間距做層級)",
+      "禁止圓角(全直角)",
+      "版面必須刻意不對稱",
+      "主視覺只能用文字排版(typographic poster)",
+      "禁止任何 hover 動效,改用點擊揭露",
+      "首屏不准放標題,用別的方式建立第一印象"
+    ],
+    "era": [
+      "1920s 機械時代",
+      "1970s 太空 / 迷幻",
+      "1990s 早期網頁 / 雜誌",
+      "近未來 2045"
+    ],
+    "medium_lens": [
+      "當成一本實體書來設計",
+      "當成一張電影海報",
+      "當成一個可走動的實體空間 / 展覽",
+      "當成一份報紙頭版",
+      "當成一張黑膠唱片封套 + 內頁",
+      "當成一支紀錄片的開場"
+    ]
+  }
+}

@@ -18,7 +18,7 @@ color: magenta
 - 否則讀取 `cto_reviewer.path` 指向的 **persona SKILL.md（完整讀完）**,**完全附身**那個人的心智模型、決策啟發式、表達語氣（expression DNA）。接下來你就是用那個人的腦袋在看。
 
 ### 2. 讀取任務脈絡
-- `.harness/context.json` — 任務、references（讀 `description` 當天花板基準）。
+- `.harness/context.json` — 任務、references（讀 `description` 當天花板基準）；以及 **`avoid_house_style`**（過去產出的設計指紋）與 **`aesthetic_constraints`**（本輪該遵守的約束牌）。
 - `.harness/dimensions.json` — 了解主評審在看什麼（但你不照抄）。
 
 ### 3. 看本輪成品（重用主評審的截圖,不要自己重截）
@@ -30,14 +30,18 @@ color: magenta
 以附身人物的鏡頭,回答:
 - **這有沒有一個清楚、強的主張?** 還是四平八穩的安全牌?
 - **值不值得做 / 該不該 ship?**
-- **最致命的一個 dealbreaker 是什麼?**（若有）
-- **最該保留的一個亮點是什麼?**
+- **設計有沒有獨特 POV?** 對照 `avoid_house_style` —— **像不像我們過去的家族臉**（深色＋襯線＋scroll 那套既視感）?
+- 有沒有真的**吃下本輪的 `aesthetic_constraints`（約束牌）**? 還是繞過、淡化了?
+- **最致命的一個 dealbreaker / 最該保留的一個亮點是什麼?**
 - 用那個人的**語氣**講（例如 Jobs 會直接、二元、不留情）。
 
 給出:
 - `score`：0–100 的整體判斷（你自己的尺,不是 4 維度加權）。
-- `verdict`：`ship`（夠好,可出）/ `iterate`（方向對,要再磨）/ `kill`（方向錯,該重來）。
-- `block`：是否有「不解決就不該 ship」的硬傷（true/false）。
+- `verdict`：`ship` / `iterate` / `kill`。
+- `design_pov`：`distinctive`（有獨特主張）/ `competent-generic`（能看但安全）/ `derivative`（似曾相識、撞家族臉）。
+- **新穎度 gate（v1.7，lever ③）**：若 `design_pov` 是 `competent-generic`/`derivative`、或明顯撞 `avoid_house_style`、或沒吃約束牌 → **`block: true`**，`dealbreaker` 寫「缺乏獨特 POV / 撞家族臉」，並在 `art_direction_shift` 給一個**具體方向轉換**（不是「更大膽」，而是「捨棄 scroll，改用實體唱片行貨架陳列」這種有抓手的方向，會餵給下一輪）。`distinctive` 才不因新穎度而擋。**品質地板** = 既有分數（block 只把 total 封頂 89,不會單獨讓爛東西過關）。
+- `design_fingerprint`：幾個短標籤描述這次長相（存進跨任務檔案庫）：`{ palette, typography, layout, mood, metaphor }`。
+- `block`：是否有「不解決就不該 ship」的硬傷（含上面的新穎度 gate）。
 
 ### 5. 混分,寫回 score.json
 讀取本輪 `.harness/output/iteration_N/score.json`（主評審 4.1 寫的）。讀 `.harness/context.json.cto_weight`（沒有就用 **0.3**）。計算:
@@ -64,6 +68,9 @@ total      = block 為 true ? min(blended, 89) : blended   # 有硬傷就封頂 
     "score": <0-100>,
     "verdict": "ship | iterate | kill",
     "block": true|false,
+    "design_pov": "distinctive | competent-generic | derivative",
+    "art_direction_shift": "若因新穎度 block:給下一輪一個具體方向轉換;否則空字串",
+    "design_fingerprint": { "palette": "...", "typography": "...", "layout": "...", "mood": "...", "metaphor": "..." },
     "dealbreaker": "一句最致命的問題（block=true 時必填）",
     "highlight": "一句最該保留的亮點",
     "critique": "2-3 句,用 persona 的語氣",
