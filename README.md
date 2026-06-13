@@ -1,6 +1,10 @@
+<div align="center">
+
 # auto-review
 
-> 基於 Anthropic Harness 架構，結合 **agency-agents-zh**（專業角色）＋ **nuwa-skill**（蒸餾人物）兩個開源專案的自動迭代生成系統
+**Describe a task. Get multiple 90+‑scored versions — auto‑cast expert roles, benchmarked against the best, dual‑reviewed, and iterated until it's actually good.**
+
+🌐 English · [繁體中文](README.zh-TW.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Latest Release](https://img.shields.io/github/v/release/jaylooloomi/mcp-auto-review-anything?label=release&color=blue)](https://github.com/jaylooloomi/mcp-auto-review-anything/releases/latest)
@@ -9,252 +13,250 @@
 [![Roles](https://img.shields.io/badge/roles-200%2B%20from%20agency--agents--zh-purple)](https://github.com/jnMetaCode/agency-agents-zh)
 [![Personas](https://img.shields.io/badge/personas-15%20from%20nuwa--skill-magenta)](https://github.com/alchaincyf/nuwa-skill)
 
----
-
-## 這是什麼？
-
-受到 Anthropic 工程部落格《[Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)》啟發，**結合兩個開源專案**：
-
-- **[agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh)**（jnMetaCode）的 200+ 個**專業角色** —— 用來動態選出規劃／生成／評估三角色。
-- **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)**（alchaincyf）蒸餾的**名人思維 persona**（Jobs / Munger / Naval…）—— 用來選出一名「CTO 評審」與主評審共同打分（v1.4）。
-
-打造一套「輸入任務 → 自動選角（＋選 CTO 評審）→ 規劃 → 生成 → 雙評審 → 迭代」的完整流程。
-
-### 核心概念
-
-一般 AI 生成是這樣：
-```
-你輸入 → AI 輸出 → 結束
-```
-
-這個系統是這樣（v1.4）：
-```
-你輸入任務
-   ↓
-Step 0  自動上網找 5 個「天花板級」範例當對標 seed（你可加/換）＋ 載入 12 條禁區
-   ↓
-Step 1  從 200+ 專業角色選出 規劃/生成/評估 三角色
-        ＋ 三角色投票，從 nuwa 蒸餾人物選一名「CTO 評審」
-   ↓
-Step 2  規劃器：設計 4 個評估維度（至少 1 個直接對標 seed）
-   ↓
-Step 3  生成器：實際創作（每輪必須違反至少 1 條禁區並 documented）
-   ↓
-Step 4  主評審截圖看圖嚴打分　＋　CTO 評審用決策者視角共評 → 混合總分
-   ↓
-分數 < 90 → 自動迭代
-        ├ 每 3 輪 / plateau → 強制 pivot ＋ 注入框架轉換（「如果這是實體展覽？」）
-        │  （但明顯進步則放行 refine）
-        └ 否則 refine
-分數 ≥ 90 → 輸出所有版本，讓你選擇
-```
-
-**v1.1 三大新機制**：
-- 🎯 **對標參考**：使用者提供天花板等級範例，作為 evaluator 評分的 anchor
-- 🚫 **禁區清單**：12 條 AI 預設套路，generator 每輪必須違反至少 1 條
-- 🔄 **強制 pivot + 框架轉換**：避免 polish trap，每 3 輪強制橫向思考
-
-**v1.2 強化**（可靠性與通用性）：
-- 🧩 **任務類型分流**：禁區/框架轉換用 `applies_to` 標籤，非網頁任務（文案/策略/程式）不再被套用網頁專屬規則
-- 🧮 **決策腳本**：迭代計數、plateau/pivot、frame-shift 生命週期、schema 驗證集中到 `iteration-decision.js`，不再靠 prose 心算；每 3 輪強制 pivot 新增「明顯進步則放行」護欄
-- 🪟 **跨平台安裝**：改用 Node 腳本，Windows 無 git-bash 也能裝
-- 📇 **角色索引**：選角讀預建索引，不再每次掃全部角色檔
-- 🔢 **可選 best-of-N**：`candidates_per_round` 開啟同輪平行生成多版本擇優
-- 🌱 **自動對標 seed（v1.3，v1.8 升級）**：Step 0 從你的「品味來源」（Awwwards／Active Theory／jerrythewebdev… 可自訂、可跨任務記住）撈 5 個天花板級範例當參考種子（你還能再補/換），餵給規劃、生成、評估當對標基準
-- 🧑‍⚖️ **雙評審 / CTO 共評（v1.4）**：選角後三角色投票，從 nuwa-skill 蒸餾人物（Jobs / Munger / Naval / Karpathy…）選一名「CTO 評審」,評分時用決策者視角共評、混入總分 —— 化解「同模型自評」的盲點
-- 📂 **產出後自動打開（v1.5）**：完成後自動用系統預設程式打開最佳版本（html→瀏覽器、docx/pdf→Office…），可用 `context.json.auto_open` 關閉
-- 🎲 **抗同質（v1.7）**：每個任務隨機抽 2 張「約束牌」（美學運動／結構／硬限制…，自動避開最近用過的）強制注入，＋跨任務「設計指紋」檔案庫讓 CTO 把「撞自己家族臉」當扣分 —— 打破「每個產出都長一樣」。可用 `context.json.diversity` 關閉
-- 🎬 **動態模式（v1.9）**：視覺/網頁類預設產出**會動的單檔**（Lenis 平滑捲動＋GSAP 捲動進場＋客製緩動，jerrythewebdev／Awwwards 那種「感覺」），遵守漸進增強（沒 JS 也完整、尊重 `prefers-reduced-motion`）；截圖看不出動態 → evaluator 改「讀 code」評動態層。可用 `context.json.motion` 關閉
+</div>
 
 ---
 
-## 安裝
+## The problem
 
-需要：**Claude Code v2.1.139+** 與 **Node.js**（外掛安裝/更新由跨平台 Node 腳本執行；Claude Code 環境通常已內建，Windows 無需 git-bash）。視覺類任務的完整頁截圖也用到 Node + puppeteer-core。
+Ask an AI to design, write, or pitch something and you usually get:
 
-### 步驟一：加入 Marketplace
+- **One shot, then it stops.** No quality bar, no second look — you grade it yourself.
+- **The "tasteful default."** Generic layouts, safe copy, the same gradient hero everyone ships.
+- **Every output looks alike.** Across tasks, the model converges on its own house style.
 
-在 Claude Code 中執行：
+There's no expert in the loop, nothing to benchmark against, and no one pushing it to be *better* instead of just *done*.
+
+## The solution
+
+auto-review is a Claude Code plugin that wraps generation in a **harness**: it casts expert roles, anchors on ceiling‑level references, and runs a *plan → generate → dual‑review → iterate* loop until the score clears 90 (or it hands you every version it tried).
+
+```
+You describe a task
+   │
+   ▼
+Step 0   Auto-seed 5 ceiling-level references (your "taste sources") + load 12 forbidden patterns
+   │
+   ▼
+Step 1   Cast planner / generator / evaluator from 200+ roles
+         + vote in a "CTO judge" distilled from a famous-thinker persona
+   │
+   ▼
+Step 2   Planner designs 4 evaluation dimensions (≥1 anchored to the references)
+   │
+   ▼
+Step 3   Generator creates — must break ≥1 forbidden pattern each round, documented
+   │
+   ▼
+Step 4   Main evaluator scores from screenshots + CTO judges from a decision-maker lens → blended score
+   │
+   ├─  Score < 90 → iterate (every 3 rounds / on plateau → forced pivot + frame-shift)
+   └─  Score ≥ 90 → emit all versions, you pick
+```
+
+Inspired by Anthropic's [Harness design for long‑running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps), built on two open‑source projects: **[agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh)** (200+ professional roles) and **[nuwa-skill](https://github.com/alchaincyf/nuwa-skill)** (distilled thinker personas).
+
+## Key features
+
+- 🎭 **Auto role‑casting** — picks a planner, generator, and evaluator from 200+ professional roles to fit your task.
+- 🧑‍⚖️ **Dual review + CTO persona** — the main evaluator and a "CTO judge" (channeled from Jobs / Munger / Naval / Karpathy…) score together, breaking the "same model grading itself" blind spot.
+- 🎯 **Ceiling‑level benchmarking** — auto‑seeds 5 top‑tier references from your taste sources (Awwwards, Active Theory, jerrythewebdev…) as scoring anchors; customizable and remembered across tasks.
+- 🚫 **Forbidden‑pattern list** — 12 default AI clichés the generator must break at least one of every round.
+- 🔄 **Forced pivots + frame‑shifts** — every 3 rounds (or on a plateau) it pivots laterally ("what if this were a physical exhibition?") to escape the polish trap.
+- 🎲 **Anti‑homogeneity** — random constraint cards plus a cross‑task "design fingerprint" archive so outputs stop converging on the same look.
+- 🎬 **Motion‑ready output** — visual/web tasks default to an animated single file (Lenis smooth scroll + GSAP), with progressive enhancement and `prefers-reduced-motion` respected.
+- 📸 **Screenshot‑based evaluation** — visual tasks are scored from real headless‑browser screenshots, not raw HTML.
+- 📂 **Auto‑open results** — opens the top‑scoring version with your OS default app when it's done.
+- 🪟 **Cross‑platform** — Node‑based installer; no git‑bash required on Windows.
+
+## Why auto-review
+
+|  | Plain AI chat | One‑shot prompt | **auto-review** |
+|---|:---:|:---:|:---:|
+| What you get | one reply | one artifact | multiple scored versions |
+| Who's working | generic assistant | generic assistant | ✅ auto‑cast specialists |
+| Quality bar | ❌ none | ❌ none | ✅ iterates to ≥90 |
+| Benchmarked against the best | ❌ | ❌ | ✅ ceiling‑level anchors |
+| Anti‑generic | ❌ | ❌ | ✅ forbidden list + pivots + diversity |
+| Review before you ship | ⚠️ self only | ❌ | ✅ dual review + CTO judge |
+
+**The wedge:** most tools help you get an answer *faster*. auto-review makes the answer *better* — by putting an expert, a benchmark, and a skeptical reviewer in the loop, and not stopping at the first draft.
+
+## How it works
+
+```
+task → [Step 0 seed + forbidden] → [Step 1 cast roles + CTO] → [Step 2 dimensions]
+     → [Step 3 generate] → [Step 4 dual review] → score ≥ 90 ? emit : iterate
+```
+
+Each role is a subagent; iteration decisions (counting, plateau detection, forced pivots, schema validation) run in a deterministic script rather than prose. See [Development](#development) for the file layout.
+
+## Install
+
+Requires **Claude Code v2.1.139+** and **Node.js** (the plugin's install/update runs via a cross‑platform Node script — usually already present in Claude Code; no git‑bash needed on Windows). Full‑page screenshots for visual tasks also use Node + puppeteer‑core.
+
+**1. Add the marketplace** — run in Claude Code:
 
 ```
 /plugin marketplace add jaylooloomi/mcp-auto-review-anything
 ```
 
-### 步驟二：安裝 Plugin
+**2. Install the plugin:**
 
 ```
 /plugin install auto-review@auto-review
 ```
 
-安裝後**務必執行 `/reload-plugins`**（或重啟 Claude Code）讓外掛的指令、skill、agents 生效 —— **這步不能省**，否則 `/auto-review:…` 會顯示「Unknown command」。
+Then **run `/reload-plugins`** (or restart Claude Code) so the commands, skill, and agents take effect — **don't skip this**, or `/auto-review:…` will report "Unknown command".
 
-> 💡 **第一次使用**（描述任務或執行 `/auto-review:run`）時，系統會自動下載 agency-agents-zh 角色庫並建立索引（需要網路，約 10–30 秒），之後就直接用。
-> 想先手動觸發下載也可以：reload 後執行一次 `/auto-review:update`。
->
-> ⚠️ 指令請**一行一行**輸入,不要把多行一次貼上。
-
-### 步驟三：確認安裝成功
+**3. Verify:**
 
 ```
 /plugin list
 ```
 
-看到 `auto-review` 出現就代表安裝成功。
+Seeing `auto-review` in the list means you're set.
 
----
+> 💡 On **first use** (describe a task or run `/auto-review:run`), the system auto‑downloads the agency-agents-zh role library and builds an index (needs network, ~10–30s), then it's instant. To trigger the download manually, run `/auto-review:update` once after reloading.
+>
+> ⚠️ Enter commands **one line at a time** — don't paste multiple lines at once.
 
-## 使用方式
+## Usage
 
-### 方式一：直接說話（推薦）
+### Option 1 — just talk (recommended)
 
-安裝後，直接描述你的任務，系統會自動觸發：
-
-```
-幫我重新設計羅浮宮美術館網站
-```
+After installing, describe your task and the system triggers automatically:
 
 ```
-幫我寫一篇小紅書種草文案，主題是夏日防曬
+Redesign the Louvre museum website
+```
+```
+Write a Xiaohongshu (RED) product post about summer sunscreen
+```
+```
+Design a UI for a user login flow
+```
+```
+Draft a slide outline for a product launch
 ```
 
-```
-幫我設計一個用戶登入流程的 UI
-```
+### Option 2 — explicit command
+
+If auto‑trigger doesn't fire, invoke it directly:
 
 ```
-幫我製作一份產品發表會的簡報大綱
+/auto-review:run Redesign the Louvre museum website
 ```
 
-### 方式二：明確指令
+### Update the role library
 
-如果自動觸發沒有作用，可以明確使用指令：
-
-```
-/auto-review:run 幫我重新設計羅浮宮美術館網站
-```
-
-### 更新角色庫
-
-當 agency-agents-zh 有新角色時，執行：
+When agency-agents-zh adds new roles:
 
 ```
 /auto-review:update
 ```
 
----
+### When it triggers
 
-## 觸發條件
+| ✅ Triggers | ❌ Doesn't trigger |
+|---|---|
+| Designing sites, UI, posters | Answering questions ("what is CSS flexbox?") |
+| Writing copy, articles, scripts | Debugging ("why does this code error?") |
+| Building slide decks, proposals | Explaining concepts |
+| Landing pages, product pages | Small edits to existing files |
 
-**會觸發**的任務類型：
-- 設計網站、UI、海報
-- 撰寫文案、文章、腳本
-- 製作簡報、企劃書
-- 建立 Landing Page、產品頁
+## Output
 
-**不會觸發**的任務類型：
-- 問問題（「什麼是 CSS flexbox？」）
-- 除錯（「這段程式為什麼報錯？」）
-- 解釋概念
-- 修改現有檔案的小細節
-
----
-
-## 輸出說明
-
-系統會在你的專案目錄下建立 `.harness/` 資料夾：
+The system creates a `.harness/` folder in your project directory:
 
 ```
 .harness/
-├── .gitignore           ← 內容 "*"，避免在你的 repo 誤 commit（v1.2）
-├── context.json         ← 對標 + 禁區 + frame-shift 歷程 + 迭代分數
-├── roles.json           ← 本次選用的角色
-├── dimensions.json      ← 自動生成的 4 個評估維度（含 task_type / task_tags）
+├── .gitignore           ← contents "*", so it never gets committed by accident
+├── context.json         ← references + forbidden list + frame-shift history + iteration scores
+├── roles.json           ← the roles cast for this task
+├── dimensions.json      ← the 4 auto-generated evaluation dimensions (with task_type / task_tags)
 └── output/
-    ├── iteration_1/     ← 第一輪輸出
-    │   ├── index.html   ← 實際輸出物（依任務類型不同）
-    │   ├── generator_notes.md  ← 生成器的設計說明
-    │   ├── screenshots/        ← 視覺類任務的截圖（desktop / mobile）
-    │   └── score.json   ← 評分結果（視覺類任務以截圖為主要評分依據）
+    ├── iteration_1/
+    │   ├── index.html              ← the actual deliverable (varies by task type)
+    │   ├── generator_notes.md      ← the generator's design rationale
+    │   ├── screenshots/            ← desktop / mobile screenshots for visual tasks
+    │   └── score.json              ← scoring result (visual tasks scored mainly from screenshots)
     ├── iteration_2/
     └── ...
 ```
 
-每輪都會保留，你可以回頭查看任何一個版本。
+Every round is kept, so you can revisit any version.
 
-> 💡 **視覺類任務（網站、UI）會用 headless Chrome/Edge 自動截圖**：
-> - 桌面 + mobile viewport（hero 首屏）
-> - **完整頁面 + 每個 section 獨立截圖**（v1.0.2+，需 Node.js）
->
-> 評估器以人眼看圖的方式評分，而非讀 HTML 原始碼。
-> 需要本機安裝 **Chrome 或 Edge**；若有 **Node.js**，安裝時會自動裝 puppeteer-core 啟用完整頁截圖。
+> 💡 **Visual tasks (sites, UI) are auto‑screenshotted with headless Chrome/Edge**: desktop + mobile viewport (hero), plus full‑page and per‑section captures. The evaluator scores them the way a human looks at images, not by reading HTML. Requires **Chrome or Edge** installed locally; with **Node.js**, puppeteer‑core is installed automatically to enable full‑page screenshots.
 
----
+## FAQ
 
-## 常見問題
+**Q: The role library failed to download.**
+A: Check your network connection, then run `/auto-review:update`.
 
-**Q：角色庫下載失敗怎麼辦？**
-A：確認網路連線後執行 `/auto-review:update`
+**Q: Auto‑trigger isn't firing.**
+A: Use `/auto-review:run <task description>` to trigger it explicitly.
 
-**Q：自動觸發一直沒有作用？**
-A：改用 `/auto-review:run <任務描述>` 明確觸發
+**Q: The score keeps coming in under 90.**
+A: The system runs up to 10 rounds, then lists every version so you can pick the closest one and refine it by hand.
 
-**Q：分數一直在 90 以下怎麼辦？**
-A：系統最多跑 10 輪，結束後會把所有版本列出，你可以挑最接近的繼續手動調整
+**Q: Can I delete the `.harness/` folder?**
+A: Yes — it's recreated on the next run.
 
-**Q：`.harness/` 資料夾可以刪掉嗎？**
-A：可以，下次執行時會重新建立
+## Known limitations
 
----
+- **Needs network on first run** to clone the agency-agents-zh role library and build the index.
+- **Screenshot scoring needs Chrome or Edge** installed locally; full‑page capture additionally needs Node.js (puppeteer‑core).
+- **Same‑model bias is mitigated, not eliminated.** The CTO persona reduces the "model grading its own work" blind spot but both judges run on the same family of models.
+- **Quality is capped by the score budget:** up to 10 rounds. If it can't clear 90, it emits all versions for manual selection rather than looping forever.
 
-## 系統架構
+## Development
 
 ```
 auto-review/
 ├── .claude-plugin/
-│   └── marketplace.json          ← Marketplace 定義
+│   └── marketplace.json          ← marketplace definition
 └── plugins/
     └── auto-review/
         ├── .claude-plugin/
-        │   └── plugin.json       ← Plugin 宣告（PostInstall 跑 node setup.js）
+        │   └── plugin.json       ← plugin manifest (PostInstall runs node setup.js)
         ├── scripts/
-        │   ├── setup.js              ← 跨平台安裝/更新：clone 角色庫 + 建索引 + puppeteer
-        │   ├── iteration-decision.js ← 迭代決策：計數/plateau/pivot/frame-shift/schema 驗證
-        │   ├── screenshot.sh         ← 偵測瀏覽器並轉呼叫 screenshot.js（fallback chrome CLI）
-        │   ├── screenshot.js         ← puppeteer-core 全頁 + 分段截圖
-        │   ├── open.js               ← 產出後用系統預設程式打開（v1.5）
-        │   └── diversity.js          ← 抗同質：隨機抽約束牌（v1.7）
+        │   ├── setup.js              ← cross-platform install/update: clone role lib + build index + puppeteer
+        │   ├── iteration-decision.js ← iteration decisions: counting / plateau / pivot / frame-shift / schema validation
+        │   ├── screenshot.sh         ← detects browser and delegates to screenshot.js (falls back to chrome CLI)
+        │   ├── screenshot.js         ← puppeteer-core full-page + per-section screenshots
+        │   ├── open.js               ← opens the result with the OS default app
+        │   └── diversity.js          ← anti-homogeneity: draws random constraint cards
         ├── data/
-        │   ├── global-forbidden.json    ← 禁區清單（applies_to 依任務類型分流）
-        │   ├── frame-shift-prompts.json ← 框架轉換 prompt
-        │   ├── role-filter.json         ← 角色過濾規則（單一來源）
-        │   ├── constraint-deck.json     ← 約束牌庫（抗同質，v1.7）
-        │   ├── taste-sources.json       ← 品味來源（對標頂尖設計，v1.8）
-        │   └── motion-kit.md            ← 動態頁配方（Lenis+GSAP，v1.9）
+        │   ├── global-forbidden.json    ← forbidden-pattern list (applies_to routes by task type)
+        │   ├── frame-shift-prompts.json ← frame-shift prompts
+        │   ├── role-filter.json         ← role filtering rules (single source)
+        │   ├── constraint-deck.json     ← constraint-card deck (anti-homogeneity)
+        │   ├── taste-sources.json       ← taste sources (benchmark against top-tier design)
+        │   └── motion-kit.md            ← motion-page recipe (Lenis + GSAP)
         ├── agents/
-        │   ├── harness-selector.md  ← 動態掃描選角（sonnet）
-        │   ├── harness-planner.md   ← 規劃 + 自動生成維度（sonnet）
-        │   ├── harness-generator.md ← 以角色身份生成（opus）
-        │   ├── harness-evaluator.md ← 嚴格評分（opus）
-        │   └── harness-cto.md       ← CTO 共評，附身 nuwa 人物決策者視角（opus, v1.4）
+        │   ├── harness-selector.md  ← dynamic role scanning + casting (sonnet)
+        │   ├── harness-planner.md   ← planning + auto-generated dimensions (sonnet)
+        │   ├── harness-generator.md ← generates in the role's voice (opus)
+        │   ├── harness-evaluator.md ← strict scoring (opus)
+        │   └── harness-cto.md       ← CTO co-review, channeling a nuwa persona's decision-maker lens (opus)
         ├── skills/
         │   └── harness/
-        │       └── SKILL.md      ← 主流程（自動觸發）
+        │       └── SKILL.md      ← main flow (auto-trigger)
         └── commands/
-            ├── run.md        ← /auto-review:run 明確觸發
-            └── update.md ← /auto-review:update 更新角色庫
+            ├── run.md        ← /auto-review:run explicit trigger
+            └── update.md     ← /auto-review:update refresh the role library
 ```
 
----
-
-## 致謝
+## Acknowledgements
 
 - [Anthropic Engineering Blog — Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - [agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski
-- [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) by jnMetaCode
-- [nuwa-skill](https://github.com/alchaincyf/nuwa-skill) by alchaincyf — CTO 評審的 perspective 人物來源（v1.4，MIT）
+- [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) by jnMetaCode — the 200+ professional roles
+- [nuwa-skill](https://github.com/alchaincyf/nuwa-skill) by alchaincyf — the persona source for the CTO judge (MIT)
 
----
+This project integrates the MIT‑licensed agency-agents-zh and nuwa-skill projects; it is not affiliated with or endorsed by their authors or by Anthropic.
 
 ## License
 
-MIT License — 自由使用，個人與商業用途均可。
+MIT License — free to use, personal and commercial alike.
