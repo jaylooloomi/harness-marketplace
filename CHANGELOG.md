@@ -24,7 +24,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Verified end-to-end: a motion page with a deep scroll-revealed section was
   captured fully (all three bands legible) under reduced-motion emulation.
 
-[1.9.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.9.0
+[1.9.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.9.0
 
 ## [1.8.0] — 2026-06-03
 
@@ -40,7 +40,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Taste sources set **how high to aim**; per-task **variety** still comes from
   the v1.7 constraint deck + CTO novelty gate — the two are complementary.
 
-[1.8.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.8.0
+[1.8.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.8.0
 
 ## [1.7.0] — 2026-06-03
 
@@ -64,7 +64,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - Toggle with `context.json.diversity` (default true); silently no-ops if it
     can't run (offline / headless).
 
-[1.7.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.7.0
+[1.7.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.7.0
 
 ## [1.6.0] — 2026-06-02
 
@@ -78,7 +78,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - Internal subagent files keep their `harness-*` names (implementation detail,
     not user-facing).
 
-[1.6.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.6.0
+[1.6.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.6.0
 
 ## [1.5.0] — 2026-06-02
 
@@ -90,7 +90,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   non-fatal (so headless/CI runs are unaffected). Toggle with
   `context.json.auto_open` (default true).
 
-[1.5.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.5.0
+[1.5.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.5.0
 
 ## [1.4.0] — 2026-06-02
 
@@ -117,7 +117,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `setup.js` now also clones nuwa-skill (non-fatal) and builds
   `perspectives-index.json` on install/update.
 
-[1.4.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.4.0
+[1.4.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.4.0
 
 ## [1.3.0] — 2026-06-02
 
@@ -143,7 +143,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   back to the chrome CLI. Resolves real install failures observed on Windows
   (npm-not-on-PATH in the exec sandbox, and a corrupt-cache ENOENT).
 
-[1.3.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.3.0
+[1.3.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.3.0
 
 ## [1.2.0] — 2026-06-01
 
@@ -401,9 +401,9 @@ least one polish round for non-trivial work.
 - Iteration loop runs up to 10 rounds until score ≥ 80, otherwise
   emits all versions.
 
-[1.2.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.2.0
-[1.1.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.1.0
-[1.0.3]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.3
-[1.0.2]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.2
-[1.0.1]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.1
-[1.0.0]: https://github.com/jaylooloomi/auto-review/releases/tag/v1.0.0
+[1.2.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.2.0
+[1.1.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.1.0
+[1.0.3]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.0.3
+[1.0.2]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.0.2
+[1.0.1]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.0.1
+[1.0.0]: https://github.com/jaylooloomi/mcp-auto-review-anything/releases/tag/v1.0.0
